@@ -13,6 +13,9 @@ import (
 func HTTP(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
 	engine.NoRoute(func(c *gin.Context) {
 		c.Status(http.StatusOK)
+		if c.Request.Method == `GET` || c.Request.Method == `HEAD` {
+			c.Request.Header.Set(`Method`, c.Request.Method)
+		}
 		gateway.ServeHTTP(c.Writer, c.Request)
 	})
 	if swagger {
