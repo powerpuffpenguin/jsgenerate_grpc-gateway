@@ -1,0 +1,38 @@
+package daemon
+
+import (
+	"net"
+	"{{pkg}}/configure"
+	"{{pkg}}/logger"
+
+	"go.uber.org/zap"
+)
+
+func Run(cnf *configure.HTTP) {
+	// listen
+	l, e := net.Listen(`tcp`, cnf.Addr)
+	if e != nil {
+		logger.Logger.Fatal(`listen error`,
+			zap.Error(e),
+		)
+		return
+	}
+	h2 := cnf.H2()
+	logger.Logger.Info(`listen success`,
+		zap.String(`addr`, cnf.Addr),
+		zap.Bool(`h2`, h2),
+	)
+	// serve
+	s := newServer(l, cnf.Swagger)
+	if h2 {
+		e = s.ServeTLS(cnf.CertFile, cnf.KeyFile)
+	} else {
+		e = s.Serve()
+	}
+	if e != nil {
+		logger.Logger.Fatal(`serve error`,
+			zap.Error(e),
+		)
+		return
+	}
+}

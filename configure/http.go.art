@@ -1,0 +1,21 @@
+package configure
+
+// HTTP configure
+type HTTP struct {
+	Addr string
+
+	CertFile string
+	KeyFile  string
+
+    Swagger bool
+}
+
+// H2 if tls return true
+func (h *HTTP) H2() bool {
+	return h.CertFile != `` && h.KeyFile != ``
+}
+
+// H2C if not use tls return true
+func (h *HTTP) H2C() bool {
+	return h.CertFile == `` || h.KeyFile == ``
+}

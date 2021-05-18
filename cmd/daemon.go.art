@@ -1,0 +1,64 @@
+package cmd
+
+import (
+	"log"
+	"path/filepath"
+	"{{pkg}}/cmd/internal/daemon"
+	"{{pkg}}/configure"
+	"{{pkg}}/logger"
+	"{{pkg}}/utils"
+
+	"github.com/spf13/cobra"
+)
+
+func init() {
+	var (
+		filename string
+		debug    bool
+		basePath = utils.BasePath()
+
+		addr string
+	)
+
+	cmd := &cobra.Command{
+		Use:   `daemon`,
+		Short: `run as daemon`,
+		Run: func(cmd *cobra.Command, args []string) {
+			// load configure
+			cnf := configure.DefaultConfigure()
+			e := cnf.Load(filename)
+			if e != nil {
+				log.Fatalln(e)
+			}
+			if addr != `` {
+				cnf.HTTP.Addr = addr
+			}
+
+			// init logger
+			e = logger.Init(basePath, &cnf.Logger)
+			if e != nil {
+				log.Fatalln(e)
+			}
+
+			daemon.Run(&cnf.HTTP)
+		},
+	}
+	flags := cmd.Flags()
+	flags.StringVarP(&filename, `config`,
+		`c`,
+		utils.Abs(basePath, filepath.Join(`etc`, `{{project}}.jsonnet`)),
+		`configure file`,
+	)
+	flags.StringVarP(&addr, `addr`,
+		`a`,
+		``,
+		`listen address`,
+	)
+
+	flags.BoolVarP(&debug, `debug`,
+		`d`,
+		false,
+		`run as debug`,
+	)
+	rootCmd.AddCommand(cmd)
+}
