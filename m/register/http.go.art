@@ -3,11 +3,16 @@ package register
 import (
 	"net/http"
 	"{{pkg}}/logger"
+	"{{pkg}}/m/web/contrib/compression"
 
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rakyll/statik/fs"
 	"go.uber.org/zap"
+)
+
+var _compression = compression.Compression(compression.BrDefaultCompression,
+	compression.GzDefaultCompression,
 )
 
 func HTTP(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
@@ -25,7 +30,9 @@ func HTTP(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
 				zap.Error(e),
 			)
 		}
-		engine.StaticFS(`/document/`, document)
+		r := engine.Group(`document`)
+		r.Use(_compression)
+		r.StaticFS(``, document)
 	}
 	// other gin route
 }
