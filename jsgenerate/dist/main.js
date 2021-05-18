@@ -22,7 +22,6 @@ class Metadata {
         this.project_ = '';
         this.pkg_ = '';
         this.year = new Date().getFullYear();
-        this.gin = false;
         this.db = false;
         this.view = false;
         this.initTrunc = false;
@@ -39,15 +38,10 @@ class Metadata {
             for (let i = 0; i < tag.length; i++) {
                 const v = tag[i];
                 if (v == 'default') {
-                    this.gin = true;
                     this.db = true;
                     this.view = true;
                 }
-                else if (v == 'gin') {
-                    this.gin = true;
-                }
                 else if (v == 'view') {
-                    this.gin = true;
                     this.view = true;
                 }
                 else if (v == 'db') {
@@ -98,15 +92,6 @@ function jsgenerate(context) {
             exclude.push(path_1.join('configure', 'db.go'));
             exclude.push(path_1.join('db', 'manipulator', 'init.go'));
         }
-        if (!md.gin) {
-            prefix.push('web' + path_1.sep);
-            exclude.push('web');
-            prefix.push('static' + path_1.sep);
-            exclude.push('static');
-            exclude.push(path_1.join('cmd', 'internal', 'daemon', 'gin.go'));
-            prefix.push('assets' + path_1.sep);
-            exclude.push('assets');
-        }
         if (!md.view) {
             prefix.push('view' + path_1.sep);
             exclude.push('view');
@@ -136,7 +121,6 @@ function jsgenerate(context) {
                     throw new Error(`file already exists : ${filename}`);
                 }
             }
-            console.log(filename, name, src);
             if (nameService.isTemplate(name)) {
                 const text = context.template(src, md);
                 console.log('renderTo', filename);

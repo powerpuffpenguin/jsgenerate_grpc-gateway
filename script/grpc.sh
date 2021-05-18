@@ -49,9 +49,10 @@ function buildGo(){
     cd "$Dir"
     local output=protocol
     if [[ -d "$output" ]];then
-        rm "$output/*" -rf
-    else
-        mkdir "$output"
+        rm "$output" -rf
+    fi
+    if [[ -d "$UUID" ]];then
+        rm "$UUID" -rf
     fi
     local document="static/document/api"
     if [[ -d "$document" ]];then
@@ -63,16 +64,24 @@ function buildGo(){
     local command=(
         protoc -I "pb" -I "third_party/googleapis" \
     )
+
+    local protos=()
+    for i in ${!Protos[@]};do
+        protos[i]="$UUID/${Protos[i]}"
+    done
     # generate grpc code
     local opts=(
-        --go_out="'$output'" --go_opt=paths=source_relative
-        --go-grpc_out="'$output'" --go-grpc_opt=paths=source_relative
-        --grpc-gateway_out="'$output'" --grpc-gateway_opt=paths=source_relative
+        --go_out="'.'" --go_opt=paths=source_relative
+        --go-grpc_out="'.'" --go-grpc_opt=paths=source_relative
+        --grpc-gateway_out="'.'" --grpc-gateway_opt=paths=source_relative
         --openapiv2_out="'$document'" --openapiv2_opt logtostderr=true --openapiv2_opt use_go_templates=true --openapiv2_opt allow_merge=true
     )
-    local exec="${command[@]} ${opts[@]} ${Protos[@]}"
+    local exec="${command[@]} ${opts[@]} ${protos[@]}"
     echo $exec
     eval "$exec"
+
+    echo mv $UUID protocol
+    mv "$UUID" "protocol"
 }
 case "$lang" in
     go)

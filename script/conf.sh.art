@@ -7,8 +7,7 @@ Platforms=(
     linux/arm
     linux/amd64
 )
+UUID="{{uuid}}"
 Protos=(
-    manager/manager.proto
-    provider/provider.proto
-    logger/logger.proto
+    system/system.proto
 )

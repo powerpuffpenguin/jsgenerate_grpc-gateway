@@ -24,7 +24,6 @@ class Metadata {
         return this.pkg_
     }
     year = new Date().getFullYear()
-    gin = false
     db = false
     view = false
     initTrunc = false
@@ -47,14 +46,9 @@ class Metadata {
             for (let i = 0; i < tag.length; i++) {
                 const v = tag[i]
                 if (v == 'default') {
-
-                    this.gin = true
                     this.db = true
                     this.view = true
-                } else if (v == 'gin') {
-                    this.gin = true
                 } else if (v == 'view') {
-                    this.gin = true
                     this.view = true
                 } else if (v == 'db') {
                     this.db = true
@@ -96,16 +90,7 @@ export function jsgenerate(context: Context) {
             exclude.push(join('configure', 'db.go'))
             exclude.push(join('db', 'manipulator', 'init.go'))
         }
-        if (!md.gin) {
-            prefix.push('web' + sep)
-            exclude.push('web')
-            prefix.push('static' + sep)
-            exclude.push('static')
-            exclude.push(join('cmd', 'internal', 'daemon', 'gin.go'))
 
-            prefix.push('assets' + sep)
-            exclude.push('assets')
-        }
         if (!md.view) {
             prefix.push('view' + sep)
             exclude.push('view')
