@@ -5,14 +5,20 @@ import (
 	"{{pkg}}/configure"
 	"{{pkg}}/logger"
 
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func Run(cnf *configure.HTTP) {
+func Run(cnf *configure.HTTP, debug bool) {
+	if debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	// listen
 	l, e := net.Listen(`tcp`, cnf.Addr)
 	if e != nil {
-		logger.Logger.Fatal(`listen error`,
+		logger.Logger.Panic(`listen error`,
 			zap.Error(e),
 		)
 		return
@@ -30,7 +36,7 @@ func Run(cnf *configure.HTTP) {
 		e = s.Serve()
 	}
 	if e != nil {
-		logger.Logger.Fatal(`serve error`,
+		logger.Logger.Panic(`serve error`,
 			zap.Error(e),
 		)
 		return

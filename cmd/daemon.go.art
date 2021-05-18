@@ -40,7 +40,7 @@ func init() {
 				log.Fatalln(e)
 			}
 
-			daemon.Run(&cnf.HTTP)
+			daemon.Run(&cnf.HTTP, debug)
 		},
 	}
 	flags := cmd.Flags()

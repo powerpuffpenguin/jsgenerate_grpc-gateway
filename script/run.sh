@@ -80,7 +80,7 @@ else
 fi
 cd "$Dir/bin"
 args=(
-    ./"$Target" daemon
+    ./"$Target" daemon -d
 )
 exec="${args[@]}"
 echo $exec

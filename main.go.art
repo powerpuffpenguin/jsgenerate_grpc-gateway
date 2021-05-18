@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "{{pkg}}/assets/document/statik"
 	"{{pkg}}/cmd"
 	"log"
 )

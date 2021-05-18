@@ -1,4 +1,4 @@
-package daemon
+package register
 
 import (
 	"{{pkg}}/logger"
@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func httpHandle(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
+func HTTP(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
 	engine.NoRoute(func(c *gin.Context) {
 		gateway.ServeHTTP(c.Writer, c.Request)
 	})

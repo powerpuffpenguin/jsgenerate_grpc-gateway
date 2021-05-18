@@ -7,6 +7,7 @@ import (
 	"strings"
 	"{{pkg}}/logger"
 
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -20,7 +21,7 @@ type Server struct {
 	tcp  net.Listener
 	gtcp *grpc.Server
 
-	mux *http.ServeMux
+	mux *gin.Engine
 }
 
 func newServer(l net.Listener, swagger bool) (s *Server) {
@@ -32,13 +33,13 @@ func newServer(l net.Listener, swagger bool) (s *Server) {
 		}),
 	)
 	if e != nil {
-		logger.Logger.Fatal(`pipe`,
+		logger.Logger.Panic(`pipe`,
 			zap.Error(e),
 		)
 	}
 
 	gateway := newGateway()
-	mux := http.NewServeMux()
+	mux := gin.Default()
 	httpHandle(mux, gateway, swagger)
 
 	s = &Server{
