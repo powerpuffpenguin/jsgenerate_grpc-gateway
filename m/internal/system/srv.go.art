@@ -1,0 +1,36 @@
+package system
+
+import (
+	"context"
+	"{{pkg}}/m/helper"
+	grpc_system "{{pkg}}/protocol/system"
+	"{{pkg}}/version"
+)
+
+type server struct {
+	grpc_system.UnimplementedSystemServer
+	helper.Helper
+}
+
+var (
+	emptyVersionResponse grpc_system.VersionResponse
+	versionResponse      = grpc_system.VersionResponse{
+		Platform: version.Platform,
+		Version:  version.Version,
+	}
+)
+
+func (server) Version(ctx context.Context, req *grpc_system.VersionRequest) (resp *grpc_system.VersionResponse, e error) {
+	resp = &versionResponse
+	return
+}
+
+var (
+	emptyStartAtResponse grpc_system.StartAtResponse
+	startAtResponse      grpc_system.StartAtResponse
+)
+
+func (server) StartAt(ctx context.Context, req *grpc_system.StartAtRequest) (resp *grpc_system.StartAtResponse, e error) {
+	resp = &startAtResponse
+	return
+}

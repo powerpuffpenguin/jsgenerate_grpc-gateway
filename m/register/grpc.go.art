@@ -1,0 +1,32 @@
+package register
+
+import (
+	"{{pkg}}/logger"
+	"{{pkg}}/m/internal/system"
+
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+)
+
+func GRPC(srv *grpc.Server, gateway *runtime.ServeMux, cc *grpc.ClientConn) {
+	ms := []Module{
+		system.Module(0),
+	}
+	for _, m := range ms {
+		m.RegisterGRPC(srv)
+		if gateway != nil {
+			e := m.RegisterGateway(gateway, cc)
+			if e != nil {
+				logger.Logger.Panic(`register gateway error`,
+					zap.Error(e),
+				)
+			}
+		}
+	}
+}
+
+type Module interface {
+	RegisterGRPC(srv *grpc.Server)
+	RegisterGateway(gateway *runtime.ServeMux, cc *grpc.ClientConn) error
+}

@@ -1,10 +1,11 @@
 module {{pkg}}
 
 require (
+	github.com/gin-gonic/gin v1.7.1
 	github.com/google/go-jsonnet v0.17.0
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0
 	github.com/rakyll/statik v0.1.7
+	github.com/spf13/cobra v1.0.1-0.20201006035406-b97b5ead31f7
 	go.uber.org/zap v1.16.0
 	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4
 	google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494

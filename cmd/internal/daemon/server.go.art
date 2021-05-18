@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"{{pkg}}/logger"
+	"{{pkg}}/m/register"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -40,7 +41,7 @@ func newServer(l net.Listener, swagger bool) (s *Server) {
 
 	gateway := newGateway()
 	mux := gin.Default()
-	httpHandle(mux, gateway, swagger)
+	register.HTTP(mux, gateway, swagger)
 
 	s = &Server{
 		pipe:  pipe,

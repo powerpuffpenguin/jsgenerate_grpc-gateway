@@ -1,13 +1,15 @@
 package daemon
 
 import (
+	"{{pkg}}/m/register"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 )
 
-func newGRPC(mux *runtime.ServeMux, cc *grpc.ClientConn) (srv *grpc.Server) {
+func newGRPC(gateway *runtime.ServeMux, cc *grpc.ClientConn) (srv *grpc.Server) {
 	var opts []grpc.ServerOption
-
 	srv = grpc.NewServer(opts...)
+	register.GRPC(srv, gateway, cc)
 	return
 }
