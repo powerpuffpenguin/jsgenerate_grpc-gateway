@@ -1,14 +1,32 @@
 package daemon
 
 import (
+	"{{pkg}}/configure"
 	"{{pkg}}/m/register"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 )
 
-func newGRPC(gateway *runtime.ServeMux, cc *grpc.ClientConn) (srv *grpc.Server) {
-	var opts []grpc.ServerOption
+func newGRPC(cnf *configure.ServerOption, gateway *runtime.ServeMux, cc *grpc.ClientConn) (srv *grpc.Server) {
+	opts := []grpc.ServerOption{
+		grpc.WriteBufferSize(cnf.WriteBufferSize),
+		grpc.ReadBufferSize(cnf.ReadBufferSize),
+
+		grpc.InitialWindowSize(cnf.InitialWindowSize),
+		grpc.InitialConnWindowSize(cnf.InitialConnWindowSize),
+
+		grpc.MaxConcurrentStreams(cnf.MaxConcurrentStreams),
+		grpc.ConnectionTimeout(cnf.ConnectionTimeout),
+		grpc.KeepaliveParams(cnf.Keepalive),
+	}
+	if cnf.MaxRecvMsgSize > 0 {
+		opts = append(opts, grpc.MaxRecvMsgSize(cnf.MaxRecvMsgSize))
+	}
+	if cnf.MaxSendMsgSize > 0 {
+		opts = append(opts, grpc.MaxSendMsgSize(cnf.MaxSendMsgSize))
+	}
+
 	srv = grpc.NewServer(opts...)
 	register.GRPC(srv, gateway, cc)
 	return

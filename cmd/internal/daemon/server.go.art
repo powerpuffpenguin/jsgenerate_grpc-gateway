@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"{{pkg}}/logger"
+	"{{pkg}}/configure"
 	"{{pkg}}/m/register"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,7 @@ type Server struct {
 	mux *gin.Engine
 }
 
-func newServer(l net.Listener, swagger bool) (s *Server) {
+func newServer(l net.Listener, swagger bool, cnf *configure.ServerOption) (s *Server) {
 	pipe := ListenPipe()
 	clientConn, e := grpc.Dial(`pipe`,
 		grpc.WithInsecure(),
@@ -45,9 +46,9 @@ func newServer(l net.Listener, swagger bool) (s *Server) {
 
 	s = &Server{
 		pipe:  pipe,
-		gpipe: newGRPC(gateway, clientConn),
+		gpipe: newGRPC(cnf, gateway, clientConn),
 		tcp:   l,
-		gtcp:  newGRPC(nil, nil),
+		gtcp:  newGRPC(cnf, nil, nil),
 		mux:   mux,
 	}
 	return
