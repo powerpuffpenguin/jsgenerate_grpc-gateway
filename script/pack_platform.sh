@@ -118,7 +118,7 @@ if [[ -f "$name" ]];then
 fi
 source=(
     "$target"
-    server.jsonnet cnf
+    etc
 )
 exec="${args[@]} ${source[@]}"
 echo $exec

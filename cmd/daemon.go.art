@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"{{pkg}}/cmd/internal/daemon"
 	"{{pkg}}/configure"
+	"{{pkg}}/db/manipulator"
 	"{{pkg}}/logger"
 	"{{pkg}}/utils"
 
@@ -40,13 +41,16 @@ func init() {
 				log.Fatalln(e)
 			}
 
+			// init db
+			manipulator.Init(&cnf.DB)
+
 			daemon.Run(&cnf.HTTP, debug)
 		},
 	}
 	flags := cmd.Flags()
 	flags.StringVarP(&filename, `config`,
 		`c`,
-		utils.Abs(basePath, filepath.Join(`etc`, `{{project}}.jsonnet`)),
+		utils.Abs(basePath, filepath.Join(`etc`, `tg.jsonnet`)),
 		`configure file`,
 	)
 	flags.StringVarP(&addr, `addr`,

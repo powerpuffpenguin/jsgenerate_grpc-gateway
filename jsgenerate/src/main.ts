@@ -24,7 +24,6 @@ class Metadata {
         return this.pkg_
     }
     year = new Date().getFullYear()
-    db = false
     view = false
     initTrunc = false
     initSupplement = false
@@ -46,12 +45,9 @@ class Metadata {
             for (let i = 0; i < tag.length; i++) {
                 const v = tag[i]
                 if (v == 'default') {
-                    this.db = true
                     this.view = true
                 } else if (v == 'view') {
                     this.view = true
-                } else if (v == 'db') {
-                    this.db = true
                 } else if (v == 'init-trunc') {
                     this.initTrunc = true
                 } else if (v == 'init-supplement') {
@@ -86,10 +82,6 @@ export function jsgenerate(context: Context) {
             join('view', 'node_modules'),
         ]
         const exclude = ['.git', 'document']
-        if (!md.db) {
-            exclude.push(join('configure', 'db.go'))
-            exclude.push(join('db', 'manipulator', 'init.go'))
-        }
 
         if (!md.view) {
             prefix.push('view' + sep)

@@ -1,0 +1,4 @@
+# {{project}}
+
+* generate by [https://github.com/powerpuffpenguin/jsgenerate](https://github.com/powerpuffpenguin/jsgenerate) at {{@date.toUTCString()}}
+* template from [https://github.com/powerpuffpenguin/jsgenerate_grpc-gateway](https://github.com/powerpuffpenguin/jsgenerate_grpc-gateway)

@@ -17,6 +17,7 @@ func DefaultConfigure() *Configure {
 
 type Configure struct {
 	HTTP   HTTP
+	DB     DB
 	Logger logger.Options
 }
 

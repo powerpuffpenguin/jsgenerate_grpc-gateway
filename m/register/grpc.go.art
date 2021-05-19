@@ -2,7 +2,7 @@ package register
 
 import (
 	"{{pkg}}/logger"
-	"{{pkg}}/m/internal/system"
+	"{{pkg}}/m/server/system"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"

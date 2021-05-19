@@ -15,6 +15,12 @@
         Hour: 60 * self.Minute,
         Day: 24 * self.Hour,
     },
+    Driver: {
+        Sqlite3: 'sqlite3', // only support on linux (go env GOHOSTOS)
+        Postgres: 'postgres',
+        Mysql: 'mysql',
+        Mssql: 'mssql',
+    },
     Method: {
         HMD5: 'HMD5',
         HS1: 'HS1',

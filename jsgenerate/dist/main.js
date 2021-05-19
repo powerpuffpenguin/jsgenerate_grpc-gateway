@@ -22,7 +22,6 @@ class Metadata {
         this.project_ = '';
         this.pkg_ = '';
         this.year = new Date().getFullYear();
-        this.db = false;
         this.view = false;
         this.initTrunc = false;
         this.initSupplement = false;
@@ -38,14 +37,10 @@ class Metadata {
             for (let i = 0; i < tag.length; i++) {
                 const v = tag[i];
                 if (v == 'default') {
-                    this.db = true;
                     this.view = true;
                 }
                 else if (v == 'view') {
                     this.view = true;
-                }
-                else if (v == 'db') {
-                    this.db = true;
                 }
                 else if (v == 'init-trunc') {
                     this.initTrunc = true;
@@ -88,10 +83,6 @@ function jsgenerate(context) {
             path_1.join('view', 'node_modules'),
         ];
         const exclude = ['.git', 'document'];
-        if (!md.db) {
-            exclude.push(path_1.join('configure', 'db.go'));
-            exclude.push(path_1.join('db', 'manipulator', 'init.go'));
-        }
         if (!md.view) {
             prefix.push('view' + path_1.sep);
             exclude.push('view');
