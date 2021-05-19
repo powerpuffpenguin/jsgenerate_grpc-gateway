@@ -2,7 +2,9 @@ package register
 
 import (
 	"{{pkg}}/logger"
+	"{{pkg}}/m/server/session"
 	"{{pkg}}/m/server/system"
+	"{{pkg}}/m/server/user"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
@@ -12,6 +14,8 @@ import (
 func GRPC(srv *grpc.Server, gateway *runtime.ServeMux, cc *grpc.ClientConn) {
 	ms := []Module{
 		system.Module(0),
+		session.Module(0),
+		user.Module(0),
 	}
 	for _, m := range ms {
 		m.RegisterGRPC(srv)

@@ -1,0 +1,18 @@
+package user
+
+import (
+	"context"
+	grpc_user "{{pkg}}/protocol/user"
+
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc"
+)
+
+type Module int
+
+func (Module) RegisterGRPC(srv *grpc.Server) {
+	grpc_user.RegisterUserServer(srv, server{})
+}
+func (Module) RegisterGateway(gateway *runtime.ServeMux, cc *grpc.ClientConn) error {
+	return grpc_user.RegisterUserHandler(context.Background(), gateway, cc)
+}

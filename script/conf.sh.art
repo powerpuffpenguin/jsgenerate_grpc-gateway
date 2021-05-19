@@ -10,4 +10,6 @@ Platforms=(
 UUID="{{uuid}}"
 Protos=(
     system/system.proto
+    session/session.proto
+    user/user.proto
 )

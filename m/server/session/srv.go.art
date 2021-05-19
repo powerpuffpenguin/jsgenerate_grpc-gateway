@@ -1,0 +1,11 @@
+package session
+
+import (
+	"{{pkg}}/m/helper"
+	grpc_session "{{pkg}}/protocol/session"
+)
+
+type server struct {
+	grpc_session.UnimplementedSessionServer
+	helper.Helper
+}

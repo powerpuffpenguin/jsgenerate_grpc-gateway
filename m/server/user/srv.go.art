@@ -1,0 +1,11 @@
+package user
+
+import (
+	"{{pkg}}/m/helper"
+	grpc_user "{{pkg}}/protocol/user"
+)
+
+type server struct {
+	grpc_user.UnimplementedUserServer
+	helper.Helper
+}
