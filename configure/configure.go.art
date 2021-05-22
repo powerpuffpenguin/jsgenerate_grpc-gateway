@@ -16,9 +16,10 @@ func DefaultConfigure() *Configure {
 }
 
 type Configure struct {
-	HTTP   HTTP
-	DB     DB
-	Logger logger.Options
+	HTTP    HTTP
+	Session Session
+	DB      DB
+	Logger  logger.Options
 }
 
 func (c *Configure) String() string {

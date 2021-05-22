@@ -19,6 +19,7 @@
 *.7z
 *.zip
 *.db
+*.log
 *sha256
 
 /assets/

@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"path/filepath"
 	"{{pkg}}/cmd/internal/daemon"
 	"{{pkg}}/configure"
 	"{{pkg}}/db/manipulator"
 	"{{pkg}}/logger"
+	"{{pkg}}/sessions"
 	"{{pkg}}/utils"
 
 	"github.com/spf13/cobra"
@@ -14,9 +16,9 @@ import (
 
 func init() {
 	var (
-		filename string
-		debug    bool
-		basePath = utils.BasePath()
+		filename    string
+		debug, test bool
+		basePath    = utils.BasePath()
 
 		addr string
 	)
@@ -34,7 +36,10 @@ func init() {
 			if addr != `` {
 				cnf.HTTP.Addr = addr
 			}
-
+			if test {
+				fmt.Println(cnf)
+				return
+			}
 			// init logger
 			e = logger.Init(basePath, &cnf.Logger)
 			if e != nil {
@@ -43,6 +48,7 @@ func init() {
 
 			// init db
 			manipulator.Init(&cnf.DB)
+			sessions.Init(&cnf.Session)
 
 			daemon.Run(&cnf.HTTP, debug)
 		},
@@ -63,6 +69,11 @@ func init() {
 		`d`,
 		false,
 		`run as debug`,
+	)
+	flags.BoolVarP(&test, `test`,
+		`t`,
+		false,
+		`test configure`,
 	)
 	rootCmd.AddCommand(cmd)
 }

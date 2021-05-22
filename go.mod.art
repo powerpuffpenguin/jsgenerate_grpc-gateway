@@ -9,6 +9,8 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.4.0
 	github.com/lib/pq v1.10.2
 	github.com/mattn/go-sqlite3 v1.14.7
+	github.com/powerpuffpenguin/sessionid v0.0.0-20210513051340-731dbddce9fe
+	github.com/powerpuffpenguin/sessionid_server v1.0.0
 	github.com/rakyll/statik v0.1.7
 	github.com/spf13/cobra v1.0.1-0.20201006035406-b97b5ead31f7
 	go.uber.org/zap v1.16.0

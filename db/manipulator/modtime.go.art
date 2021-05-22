@@ -9,11 +9,9 @@ import (
 )
 
 const (
-	// ModtimeUser .
 	ModtimeUser = 1
 )
 
-// SetLastModified .
 func SetLastModified(id int32, modtime time.Time) (int64, error) {
 	unix := modtime.Unix()
 	return Engine().ID(id).Where(
@@ -23,7 +21,6 @@ func SetLastModified(id int32, modtime time.Time) (int64, error) {
 	})
 }
 
-// LastModified .
 func LastModified(id int32) (modtime time.Time, e error) {
 	var tmp data.Modtime
 	exists, e := Engine().ID(id).Get(&tmp)
@@ -38,14 +35,12 @@ func LastModified(id int32) (modtime time.Time, e error) {
 	return
 }
 
-// SetETag .
 func SetETag(id int32, etag string) (int64, error) {
 	return Engine().ID(id).Cols(data.ColModtimeUnix).Update(&data.Modtime{
 		ETag: etag,
 	})
 }
 
-// LastETag .
 func LastETag(id int32) (etag string, e error) {
 	var tmp data.Modtime
 	exists, e := Engine().ID(id).Get(&tmp)
@@ -81,7 +76,6 @@ func NewModtimeHelper(id int32, modtime, etag bool) *ModtimeHelper {
 	return helper
 }
 
-// Init .
 func (h *ModtimeHelper) Init(unix int64, etag, description string) (e error) {
 	engine := Engine()
 	exists, e := engine.ID(h.id).Get(&data.Modtime{})
@@ -148,12 +142,10 @@ func (h *ModtimeHelper) ETag(etag string) {
 	}
 }
 
-// LastModified .
 func (h *ModtimeHelper) LastModified() (time.Time, error) {
 	return LastModified(h.id)
 }
 
-// LastETag .
 func (h *ModtimeHelper) LastETag() (string, error) {
 	return LastETag(h.id)
 }

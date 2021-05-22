@@ -49,6 +49,12 @@ message SigninResponse{
     string access = 1;
     // refresh token
     string refresh = 2;
+
+    int64 id = 3;
+    // [a-zA-Z][a-zA-Z0-9]{4,}
+    string name = 4;   
+    string nickname = 5;
+    repeated int32 authorization = 6;
 }
 message SignoutRequest{
     string access = 1;

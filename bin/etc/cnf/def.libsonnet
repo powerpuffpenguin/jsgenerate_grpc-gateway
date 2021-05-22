@@ -28,10 +28,19 @@
         HS384: 'HS384',
         HS512: 'HS512',
     },
+    Session: {
+        Client: 'Client',
+        Memory: 'Memory',
+    },
     Coder: {
         GOB: 'GOB',
         JSON: 'JSON',
         XML: 'XML',
+    },
+    Protocol: {
+        H2: 'h2',
+        H2Insecure: 'h2-insecure',
+        H2C: 'h2c',
     },
     Provider: {
         Memory: 'Memory',
