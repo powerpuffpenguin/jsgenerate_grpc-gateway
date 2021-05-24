@@ -1,11 +1,32 @@
 package user
 
 import (
+	"context"
 	"{{pkg}}/m/helper"
+
 	grpc_user "{{pkg}}/protocol/user"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type server struct {
 	grpc_user.UnimplementedUserServer
 	helper.Helper
+}
+
+func (s server) Find(ctx context.Context, req *grpc_user.FindRequest) (reps *grpc_user.FindResponse, e error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Find not implemented")
+}
+func (s server) Add(ctx context.Context, req *grpc_user.AddRequest) (reps *grpc_user.AddResponse, e error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
+}
+func (s server) Password(ctx context.Context, req *grpc_user.PasswordRequest) (reps *grpc_user.PasswordResponse, e error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Password not implemented")
+}
+func (s server) Change(ctx context.Context, req *grpc_user.ChangeRequest) (reps *grpc_user.ChangeResponse, e error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Change not implemented")
+}
+func (s server) Remove(ctx context.Context, req *grpc_user.RemoveRequest) (reps *grpc_user.RemoveResponse, e error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Remove not implemented")
 }

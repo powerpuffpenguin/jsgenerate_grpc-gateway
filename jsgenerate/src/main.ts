@@ -2,7 +2,7 @@ import { Context } from "./context";
 import { promises, constants } from "fs";
 import { Exclude, NameService } from "./helper";
 import { join, sep } from "path";
-export const tag = 'default gateway gin db view init-trunc init-supplement'
+export const tag = 'default view init-trunc init-supplement'
 export const description = 'google grpc frame template'
 async function exists(filename: string): Promise<boolean> {
     try {

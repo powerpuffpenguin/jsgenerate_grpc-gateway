@@ -11,7 +11,7 @@ local level = def.Level;
     // How many days of logs are kept
     MaxDays: 28,
     // Do you want to output the code location
-    Caller: false,
+    // Caller: true,
     // debug info warn error dpanic panic fatal
     FileLevel: level.Info,
     // debug info warn error dpanic panic fatal

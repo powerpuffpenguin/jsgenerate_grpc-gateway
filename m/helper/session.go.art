@@ -1,0 +1,64 @@
+package helper
+
+import (
+	"context"
+	"strings"
+	"{{pkg}}/sessions"
+
+	"github.com/powerpuffpenguin/sessionid"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+)
+
+type sessionKey struct{}
+type sessionValue struct {
+	session *sessionid.Session
+	e       error
+}
+
+func (h Helper) accessSession(ctx context.Context) (session *sessionid.Session, e error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		strs := md.Get(`Authorization`)
+		for _, str := range strs {
+			if strings.HasPrefix(str, `Bearer `) {
+				access := str[7:]
+				session, e = sessions.DefaultManager().Get(ctx, access)
+				break
+			}
+		}
+	}
+	if sessionid.IsTokenExpired(e) {
+		e = h.Error(codes.Unauthenticated, e.Error())
+	}
+	return
+}
+func (h Helper) Session(ctx context.Context) (newctx context.Context, session *sessionid.Session, e error) {
+	newctx = ctx
+
+	cache, ok := ctx.Value(sessionKey{}).(sessionValue)
+	if ok {
+		session = cache.session
+		e = cache.e
+		return
+	}
+	session, e = h.accessSession(ctx)
+	newctx = context.WithValue(ctx, sessionKey{}, sessionValue{
+		session: session,
+		e:       e,
+	})
+	return
+}
+func (h Helper) Userdata(ctx context.Context) (newctx context.Context, userdata sessions.Userdata, e error) {
+	newctx, session, e := h.Session(ctx)
+	if e != nil {
+		return
+	} else if session == nil {
+		return
+	}
+	e = session.Get(newctx, sessions.KeyUserdata, &userdata)
+	if sessionid.IsTokenExpired(e) {
+		e = h.Error(codes.Unauthenticated, e.Error())
+	}
+	return
+}

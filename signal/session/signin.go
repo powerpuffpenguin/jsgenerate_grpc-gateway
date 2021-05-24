@@ -9,11 +9,6 @@ type SigninRequest struct {
 }
 
 type SigninResponse struct {
-	// access token
-	Access string
-	// refresh token
-	Refresh string
-
 	ID int64
 	// [a-zA-Z][a-zA-Z0-9]{4,}
 	Name          string

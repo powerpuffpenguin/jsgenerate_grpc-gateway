@@ -41,8 +41,9 @@ service Session {
     }
 }
 message SigninRequest{
-    string name = 1;
-    string password = 2;
+    string platform = 1;
+    string name = 2;
+    string password = 3;
 }
 message SigninResponse{
     // access token

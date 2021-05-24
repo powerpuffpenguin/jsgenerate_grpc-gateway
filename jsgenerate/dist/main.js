@@ -4,7 +4,7 @@ exports.jsgenerate = exports.description = exports.tag = void 0;
 const fs_1 = require("fs");
 const helper_1 = require("./helper");
 const path_1 = require("path");
-exports.tag = 'default gateway gin db view init-trunc init-supplement';
+exports.tag = 'default view init-trunc init-supplement';
 exports.description = 'google grpc frame template';
 async function exists(filename) {
     try {

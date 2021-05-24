@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"sync"
+	"{{pkg}}/m/server/user/internal/db"
 	grpc_user "{{pkg}}/protocol/user"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -10,7 +12,10 @@ import (
 
 type Module int
 
+var once sync.Once
+
 func (Module) RegisterGRPC(srv *grpc.Server) {
+	once.Do(db.Init)
 	grpc_user.RegisterUserServer(srv, server{})
 }
 func (Module) RegisterGateway(gateway *runtime.ServeMux, cc *grpc.ClientConn) error {

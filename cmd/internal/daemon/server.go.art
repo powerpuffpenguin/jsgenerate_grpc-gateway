@@ -26,7 +26,7 @@ type Server struct {
 	mux *gin.Engine
 }
 
-func newServer(l net.Listener, swagger bool, cnf *configure.ServerOption) (s *Server) {
+func newServer(l net.Listener, swagger, debug bool, cnf *configure.ServerOption) (s *Server) {
 	pipe := ListenPipe()
 	clientConn, e := grpc.Dial(`pipe`,
 		grpc.WithInsecure(),
@@ -46,9 +46,9 @@ func newServer(l net.Listener, swagger bool, cnf *configure.ServerOption) (s *Se
 
 	s = &Server{
 		pipe:  pipe,
-		gpipe: newGRPC(cnf, gateway, clientConn),
+		gpipe: newGRPC(cnf, gateway, clientConn, debug),
 		tcp:   l,
-		gtcp:  newGRPC(cnf, nil, nil),
+		gtcp:  newGRPC(cnf, nil, nil, debug),
 		mux:   mux,
 	}
 	return

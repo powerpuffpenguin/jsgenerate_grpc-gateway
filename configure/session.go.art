@@ -11,8 +11,7 @@ type Session struct {
 type SessionClient struct {
 	Protocol string
 	Addr     string
-	Manager  string
-	Provider string
+	Token  string
 }
 type SessionMemory struct {
 	Manager  SessionManager
