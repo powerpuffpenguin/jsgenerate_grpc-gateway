@@ -160,6 +160,9 @@ func Engine() *xorm.Engine {
 func Slave() *xorm.Engine {
 	return _Engine.Slave()
 }
+func Session() *xorm.Session {
+	return _Engine.NewSession()
+}
 func Begin() (s *xorm.Session, e error) {
 	s = _Engine.NewSession()
 	e = s.Begin()

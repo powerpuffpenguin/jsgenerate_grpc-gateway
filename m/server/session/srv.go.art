@@ -2,7 +2,6 @@ package session
 
 import (
 	"context"
-	"fmt"
 	"{{pkg}}/logger"
 	"{{pkg}}/m/helper"
 	grpc_session "{{pkg}}/protocol/session"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/powerpuffpenguin/sessionid"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
 )
 
 type server struct {
@@ -31,7 +31,11 @@ func (s server) Signin(ctx context.Context, req *grpc_session.SigninRequest) (re
 		}
 		return
 	}
-	id := fmt.Sprintf(`%s-%v`, req.Platform, result.ID)
+	id, e := sessions.PlatformID(req.Platform, result.ID)
+	if e != nil {
+		e = s.Error(codes.InvalidArgument, e.Error())
+		return
+	}
 	m := sessions.DefaultManager()
 	e = m.Destroy(ctx, id)
 	if e != nil {
@@ -182,6 +186,17 @@ func (s server) Password(ctx context.Context, req *grpc_session.PasswordRequest)
 	}
 	if changed {
 		resp = &truePasswordResponse
+		ed := sessions.DestroyID(userdata.ID)
+		if ed != nil {
+			if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
+				ce.Write(
+					zap.Error(ed),
+					zap.String(`access`, req.Access),
+					zap.Int64(`id`, userdata.ID),
+					zap.String(`name`, userdata.Name),
+				)
+			}
+		}
 	} else {
 		resp = &falsePasswordResponse
 	}
