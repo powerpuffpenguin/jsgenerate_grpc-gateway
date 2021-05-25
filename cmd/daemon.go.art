@@ -56,7 +56,7 @@ func init() {
 	flags := cmd.Flags()
 	flags.StringVarP(&filename, `config`,
 		`c`,
-		utils.Abs(basePath, filepath.Join(`etc`, `tg.jsonnet`)),
+		utils.Abs(basePath, filepath.Join(`etc`, `{{project}}.jsonnet`)),
 		`configure file`,
 	)
 	flags.StringVarP(&addr, `addr`,

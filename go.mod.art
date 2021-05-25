@@ -14,6 +14,7 @@ require (
 	github.com/powerpuffpenguin/sessionid_server v1.0.0
 	github.com/rakyll/statik v0.1.7
 	github.com/spf13/cobra v1.0.1-0.20201006035406-b97b5ead31f7
+	github.com/stretchr/testify v1.7.0
 	go.uber.org/zap v1.16.0
 	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4
 	google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494
