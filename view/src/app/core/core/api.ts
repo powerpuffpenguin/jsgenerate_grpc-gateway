@@ -4,8 +4,8 @@ const root = 'api'
 export const ServerAPI = {
     v1: {
         sessions: MakeRESTful(root, 'v1', 'sessions'),
+        system: MakeRESTful(root, 'v1', 'system'),
         features: {
-            systems: MakeRESTful(root, 'v1', 'features', 'systems'),
             loggers: MakeRESTful(root, 'v1', 'features', 'loggers'),
             users: MakeRESTful(root, 'v1', 'features', 'users'),
         },

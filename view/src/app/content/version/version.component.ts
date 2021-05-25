@@ -6,33 +6,15 @@ import { takeUntil } from 'rxjs/operators';
 import { ServerAPI } from 'src/app/core/core/api';
 import { Closed } from 'src/app/core/utils/closed';
 import { RequireNet } from 'src/app/core/utils/requirenet';
-interface Response {
+import { durationString } from 'src/app/core/utils/utils';
+interface VersionResponse {
   platform: string
-  tag: string
-  commit: string
-  date: string
-  startAt: number
+  version: string
 }
-function durationString(d: any) {
-  const result = new Array<string>()
-  const days = Math.floor(d.asDays())
-  if (days > 0) {
-    result.push(`${days} days`)
-  }
-  const hours = Math.floor(d.asHours()) % 24
-  if (hours > 0) {
-    result.push(`${hours} hours`)
-  }
-  const minutes = Math.floor(d.asMinutes()) % 60
-  if (minutes > 0) {
-    result.push(`${minutes} minutes`)
-  }
-  const seconds = Math.floor(d.asSeconds()) % 60
-  if (seconds > 0) {
-    result.push(`${seconds} seconds`)
-  }
-  return result.join(' ')
+interface StartAtResponse {
+  result: number
 }
+
 @Component({
   selector: 'app-version',
   templateUrl: './version.component.html',
@@ -40,7 +22,7 @@ function durationString(d: any) {
 })
 export class VersionComponent implements OnInit, OnDestroy {
   VERSION = VERSION
-  response: Response | undefined
+  response: VersionResponse | undefined
   private closed_ = new Closed()
   startAt: any
   started: string = ''
@@ -48,13 +30,22 @@ export class VersionComponent implements OnInit, OnDestroy {
     private toasterService: ToasterService,
   ) { }
   ngOnInit(): void {
+    ServerAPI.v1.system.child('version').get<VersionResponse>(this.httpClient).pipe(
+      takeUntil(this.closed_.observable),
+    ).subscribe((response) => {
+      this.response = response
+    }, (e) => {
+      this.toasterService.pop('error',
+        undefined,
+        e,
+      )
+    })
+
     RequireNet('moment').then((moment) => {
-      ServerAPI.v1.features.systems.child('detail').get<Response>(this.httpClient,
-      ).pipe(
+      ServerAPI.v1.system.child('start_at').get<StartAtResponse>(this.httpClient).pipe(
         takeUntil(this.closed_.observable),
       ).subscribe((response) => {
-        this.response = response
-        this.startAt = moment.unix(response.startAt)
+        this.startAt = moment.unix(response.result)
         const d = moment.duration(moment.unix(moment.now() / 1000).diff(this.startAt))
         this.started = durationString(d)
       }, (e) => {
@@ -63,7 +54,6 @@ export class VersionComponent implements OnInit, OnDestroy {
           e,
         )
       })
-
       interval(1000).pipe(
         takeUntil(this.closed_.observable),
       ).subscribe(() => {
