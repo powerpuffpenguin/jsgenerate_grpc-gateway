@@ -35,7 +35,7 @@ export class DeleteComponent implements OnInit, OnDestroy {
       return
     }
     this.disabled = true
-    ServerAPI.v1.features.users.child(this.data.id).delete(this.httpClient).pipe(
+    ServerAPI.v1.users.child(`id`, this.data.id).delete(this.httpClient).pipe(
       takeUntil(this.closed_.observable),
       finalize(() => {
         this.disabled = false

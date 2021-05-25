@@ -83,7 +83,7 @@ export class EditComponent implements OnInit, OnDestroy {
       authorization.push(k)
     })
     authorization.sort()
-    ServerAPI.v1.features.users.child(this.data.id, 'change').post(this.httpClient, {
+    ServerAPI.v1.users.child('change', this.data.id).post(this.httpClient, {
       nickname: this.nickname,
       authorization: authorization,
     }).pipe(

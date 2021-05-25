@@ -37,7 +37,7 @@ export class PasswordComponent implements OnInit, OnDestroy {
       return
     }
     this.disabled = true
-    ServerAPI.v1.features.users.child(this.data.id, 'password').post(this.httpClient,
+    ServerAPI.v1.users.child('password', this.data.id).post(this.httpClient,
       {
         'value': md5String(this.val),
       },

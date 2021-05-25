@@ -65,7 +65,7 @@ export class QueryComponent implements OnInit, OnDestroy {
       return
     }
     this.disabled = true
-    ServerAPI.v1.features.users.get<Response>(this.httpClient, {
+    ServerAPI.v1.users.get<Response>(this.httpClient, {
       params: request.toArgs()
     }).pipe(
       takeUntil(this.closed_.observable),

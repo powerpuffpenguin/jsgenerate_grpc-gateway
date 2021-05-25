@@ -63,7 +63,7 @@ export class AddComponent implements OnInit {
     })
     authorization.sort()
     const password = md5String(this.password)
-    ServerAPI.v1.features.users.post<Response>(this.httpClient, {
+    ServerAPI.v1.users.post<Response>(this.httpClient, {
       name: this.name,
       password: password,
       nickname: this.nickname,
