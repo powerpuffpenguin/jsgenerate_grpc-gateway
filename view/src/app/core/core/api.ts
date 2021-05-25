@@ -6,9 +6,7 @@ export const ServerAPI = {
         sessions: MakeRESTful(root, 'v1', 'sessions'),
         system: MakeRESTful(root, 'v1', 'system'),
         users: MakeRESTful(root, 'v1', 'users'),
-        features: {
-            loggers: MakeRESTful(root, 'v1', 'features', 'loggers'),
-        },
+        logger: MakeRESTful(root, 'v1', 'logger'),
     },
     static: {
         licenses: MakeRESTful('static', '3rdpartylicenses.txt'),

@@ -1,0 +1,23 @@
+package logger
+
+import (
+	"context"
+	"{{pkg}}/m/server/logger/internal/db"
+	grpc_logger "{{pkg}}/protocol/logger"
+	"sync"
+
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"google.golang.org/grpc"
+)
+
+type Module int
+
+var once sync.Once
+
+func (Module) RegisterGRPC(srv *grpc.Server) {
+	once.Do(db.Init)
+	grpc_logger.RegisterLoggerServer(srv, server{})
+}
+func (Module) RegisterGateway(gateway *runtime.ServeMux, cc *grpc.ClientConn) error {
+	return grpc_logger.RegisterLoggerHandler(context.Background(), gateway, cc)
+}

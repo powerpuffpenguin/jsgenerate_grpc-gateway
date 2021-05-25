@@ -12,4 +12,5 @@ Protos=(
     system/system.proto
     session/session.proto
     user/user.proto
+    logger/logger.proto
 )

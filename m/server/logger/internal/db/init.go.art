@@ -1,0 +1,7 @@
+package db
+
+import "{{pkg}}/configure"
+
+func Init() {
+	defaultFilesystem.onStart(configure.DefaultConfigure().Logger.Filename)
+}

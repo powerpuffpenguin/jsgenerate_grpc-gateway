@@ -35,7 +35,7 @@ export class ViewComponent implements OnInit, OnDestroy {
   load() {
     this.err = null
     this.ready = false
-    ServerAPI.v1.features.loggers.child('level').get<Response>(this.httpClient).pipe(
+    ServerAPI.v1.logger.child('level').get<Response>(this.httpClient).pipe(
       takeUntil(this.closed_.observable),
       finalize(() => {
         this.ready = true
@@ -83,7 +83,7 @@ export class ViewComponent implements OnInit, OnDestroy {
       return
     }
     this.disabled = true
-    ServerAPI.v1.features.loggers.child('level').post(this.httpClient, {
+    ServerAPI.v1.logger.child('level').post(this.httpClient, {
       tag: 'file',
       level: this.data.file,
     }).pipe(
@@ -103,7 +103,7 @@ export class ViewComponent implements OnInit, OnDestroy {
       return
     }
     this.disabled = true
-    ServerAPI.v1.features.loggers.child('level').post(this.httpClient, {
+    ServerAPI.v1.logger.child('level').post(this.httpClient, {
       tag: 'console',
       level: this.data.console,
     }).pipe(

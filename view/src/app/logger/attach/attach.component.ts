@@ -86,11 +86,11 @@ export class AttachComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     const query = new HttpParams({
       fromObject: {
-        access_token: `Bearer ${this.token_}`,
+        access_token: `${this.token_}`,
       }
     })
     this.listener = new Listener(
-      ServerAPI.v1.features.loggers.websocketURL('attach', 'websocket') + '?' + query.toString(),
+      ServerAPI.v1.logger.websocketURL('attach') + '?' + query.toString(),
       this,
     )
   }

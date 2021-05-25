@@ -43,7 +43,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
   load() {
     this.err = null
     this.ready = false
-    ServerAPI.v1.features.loggers.get<Response>(this.httpClient).pipe(
+    ServerAPI.v1.logger.get<Response>(this.httpClient).pipe(
       takeUntil(this.closed_.observable),
       finalize(() => {
         this.ready = true
@@ -72,6 +72,6 @@ export class DownloadComponent implements OnInit, OnDestroy {
         access_token: `${this.token_}`,
       }
     })
-    return ServerAPI.v1.features.loggers.httpURL('download', name) + '?' + parms.toString()
+    return ServerAPI.v1.logger.httpURL('download', name) + '?' + parms.toString()
   }
 }

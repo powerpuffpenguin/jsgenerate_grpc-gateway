@@ -21,7 +21,7 @@ import (
 func (Helper) ServeContent(stream grpc.Stream, contentType string,
 	modtime time.Time,
 	content io.ReadSeeker,
-) (bool, error) {
+) error {
 	sizeFunc := func() (int64, error) {
 		size, err := content.Seek(0, io.SeekEnd)
 		if err != nil {
@@ -54,7 +54,7 @@ type serveContent struct {
 
 func (s *serveContent) Serve(stream grpc.Stream, contentType string,
 	sizeFunc func() (int64, error), content io.ReadSeeker,
-) (nothit bool, e error) {
+) (e error) {
 	s.ctx = stream.Context()
 	s.setLastModified()
 	s.md, s.mdOK = metadata.FromIncomingContext(s.ctx)
@@ -64,7 +64,6 @@ func (s *serveContent) Serve(stream grpc.Stream, contentType string,
 	if done {
 		return
 	}
-	nothit = true
 	size, e := sizeFunc()
 	if e != nil {
 		return
