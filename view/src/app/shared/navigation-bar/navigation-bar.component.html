@@ -18,7 +18,7 @@
     <button mat-icon-button i18n-matTooltip matTooltip="Select a theme for page" [matMenuTriggerFor]="menuTheme">
         <mat-icon>format_color_fill</mat-icon>
     </button>
-    <ng-container *ngIf="ready;then readyVIew;else notReadyView"></ng-container>
+    <ng-container *ngIf="session;then sessionView;else signinView"></ng-container>
 </mat-toolbar>
 
 <mat-menu #menuTheme="matMenu">
@@ -28,15 +28,8 @@
     </button>
 </mat-menu>
 
-<ng-template #notReadyView>
-    <mat-spinner diameter='28' color="accent"></mat-spinner>
-</ng-template>
-
-<ng-template #readyVIew>
-    <ng-container *ngIf="access;then accessView;else signinView"></ng-container>
-</ng-template>
-<ng-template #accessView>
-    <button mat-icon-button matTooltip="{{access?.who}}" [matMenuTriggerFor]="menuPerson">
+<ng-template #sessionView>
+    <button mat-icon-button matTooltip="{{session?.who}}" [matMenuTriggerFor]="menuPerson">
         <mat-icon>person_pin</mat-icon>
     </button>
     <mat-menu #menuPerson="matMenu">
@@ -45,7 +38,7 @@
             <ng-container i18n>Password</ng-container>
         </button>
         <mat-divider></mat-divider>
-        <ng-container *ngIf="access?.root;then rootView;"></ng-container>
+        <ng-container *ngIf="session?.root;then rootView;"></ng-container>
         <ng-template #rootView>
             <a mat-menu-item routerLink="/user">
                 <mat-icon>supervised_user_circle</mat-icon>

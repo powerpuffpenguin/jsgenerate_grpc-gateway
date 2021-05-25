@@ -1,6 +1,9 @@
 package session
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type SigninRequest struct {
 	Context  context.Context
@@ -23,6 +26,10 @@ func ConnectSignin(f SigninHandle) {
 	defaultSignin = append(defaultSignin, f)
 }
 func Signin(ctx context.Context, name, password string) (result *SigninResponse, e error) {
+	if len(defaultSignin) == 0 {
+		e = errors.New(`signin solt nil`)
+		return
+	}
 	req := &SigninRequest{
 		Context:  ctx,
 		Name:     name,

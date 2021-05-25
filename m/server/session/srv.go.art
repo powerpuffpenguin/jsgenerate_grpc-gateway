@@ -30,6 +30,9 @@ func (s server) Signin(ctx context.Context, req *grpc_session.SigninRequest) (re
 			)
 		}
 		return
+	} else if result.ID == 0 {
+		e = s.Error(codes.NotFound, `name or password not match`)
+		return
 	}
 	id, e := sessions.PlatformID(req.Platform, result.ID)
 	if e != nil {
@@ -152,12 +155,11 @@ var falsePasswordResponse grpc_session.PasswordResponse
 
 func (s server) Password(ctx context.Context, req *grpc_session.PasswordRequest) (resp *grpc_session.PasswordResponse, e error) {
 	TAG := `session Password`
-	session, e := sessions.DefaultManager().Get(ctx, req.Access)
+	_, session, e := s.Session(ctx)
 	if e != nil {
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`access`, req.Access),
 			)
 		}
 		return
@@ -167,7 +169,6 @@ func (s server) Password(ctx context.Context, req *grpc_session.PasswordRequest)
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`access`, req.Access),
 			)
 		}
 		return
@@ -177,7 +178,6 @@ func (s server) Password(ctx context.Context, req *grpc_session.PasswordRequest)
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`access`, req.Access),
 				zap.Int64(`id`, userdata.ID),
 				zap.String(`name`, userdata.Name),
 			)
@@ -191,7 +191,6 @@ func (s server) Password(ctx context.Context, req *grpc_session.PasswordRequest)
 			if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 				ce.Write(
 					zap.Error(ed),
-					zap.String(`access`, req.Access),
 					zap.Int64(`id`, userdata.ID),
 					zap.String(`name`, userdata.Name),
 				)

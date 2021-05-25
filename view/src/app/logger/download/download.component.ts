@@ -23,23 +23,18 @@ export class DownloadComponent implements OnInit, OnDestroy {
   private set_ = new Set<string>()
   private token_ = ''
   ngOnInit(): void {
-    this.sessionService.ready.then(() => {
-      if (this.closed_.isClosed) {
-        return
-      }
-      this.load()
-      this.sessionService.observable.pipe(
-        takeUntil(this.closed_.observable),
-        filter((session) => {
-          if (session?.access?.root) {
-            return true
-          }
-          return false
-        }),
-        map((session) => session?.access?.token)
-      ).subscribe((token) => {
-        this.token_ = token ?? ''
-      })
+    this.load()
+    this.sessionService.observable.pipe(
+      takeUntil(this.closed_.observable),
+      filter((session) => {
+        if (session?.access) {
+          return true
+        }
+        return false
+      }),
+      map((session) => session?.access)
+    ).subscribe((token) => {
+      this.token_ = token ?? ''
     })
   }
   ngOnDestroy() {
@@ -74,7 +69,7 @@ export class DownloadComponent implements OnInit, OnDestroy {
   getURL(name: string): string {
     const parms = new HttpParams({
       fromObject: {
-        authorization: `Bearer ${this.token_}`,
+        access_token: `${this.token_}`,
       }
     })
     return ServerAPI.v1.features.loggers.httpURL('download', name) + '?' + parms.toString()

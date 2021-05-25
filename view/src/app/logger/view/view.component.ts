@@ -27,12 +27,7 @@ export class ViewComponent implements OnInit, OnDestroy {
   data: Response = {}
   readonly levels = ['debug', 'info', 'warn', 'error', 'dpanic', 'panic', 'fatal']
   ngOnInit(): void {
-    this.sessionService.ready.then(() => {
-      if (this.closed_.isClosed) {
-        return
-      }
-      this.load()
-    })
+    this.load()
   }
   ngOnDestroy() {
     this.closed_.close()

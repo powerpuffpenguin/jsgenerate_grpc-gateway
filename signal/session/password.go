@@ -2,6 +2,7 @@ package session
 
 import (
 	"context"
+	"errors"
 )
 
 type PasswordRequest struct {
@@ -22,6 +23,10 @@ func ConnectPassword(f PasswordHandle) {
 	defaultPassword = append(defaultPassword, f)
 }
 func Password(ctx context.Context, id int64, old, password string) (changed bool, e error) {
+	if len(defaultPassword) == 0 {
+		e = errors.New(`signin solt nil`)
+		return
+	}
 	req := &PasswordRequest{
 		Context:  ctx,
 		ID:       id,

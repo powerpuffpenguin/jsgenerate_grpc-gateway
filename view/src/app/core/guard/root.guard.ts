@@ -19,17 +19,15 @@ export class RootGuard implements CanActivate {
     state: RouterStateSnapshot,
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     return new Promise<boolean>((resolve) => {
-      this.sessionService.ready.then(() => {
-        this.sessionService.observable.pipe(
-          first()
-        ).subscribe((data) => {
-          if (data?.access) {
-            resolve(data.access.root)
-          } else {
-            resolve(false)
-            this.toasterService.pop('error', undefined, 'Permission denied')
-          }
-        })
+      this.sessionService.observable.pipe(
+        first()
+      ).subscribe((session) => {
+        if (session?.root) {
+          resolve(true)
+        } else {
+          resolve(false)
+          this.toasterService.pop('error', undefined, 'Permission denied')
+        }
       })
     })
   }

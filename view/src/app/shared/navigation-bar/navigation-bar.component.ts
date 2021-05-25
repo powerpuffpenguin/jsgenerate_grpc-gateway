@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 import { MatDialog } from '@angular/material/dialog';
 import { SignInComponent } from '../sign-in/sign-in.component';
 import { SessionService } from 'src/app/core/session/session.service';
-import { Token } from 'src/app/core/session/manager';
+import { Session } from 'src/app/core/session/session';
 import { PasswordComponent } from '../password/password.component';
 interface Data {
   id: Theme,
@@ -41,8 +41,7 @@ export class NavigationBarComponent implements OnInit, OnDestroy {
     private readonly sessionService: SessionService,
   ) {
   }
-  ready = false
-  access: Token | undefined
+  session: Session | undefined
   private closed_ = new Closed()
   themes = Themes
   theme = ''
@@ -58,13 +57,10 @@ export class NavigationBarComponent implements OnInit, OnDestroy {
     ).subscribe((theme) => {
       this.theme = theme
     })
-    this.sessionService.ready.then(() => {
-      this.ready = true
-    })
-    this.sessionService.access.pipe(
+    this.sessionService.observable.pipe(
       takeUntil(this.closed_.observable),
-    ).subscribe((access) => {
-      this.access = access
+    ).subscribe((session) => {
+      this.session = session
     })
   }
   ngOnDestroy() {

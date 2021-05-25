@@ -32,12 +32,12 @@ export class AttachComponent implements OnInit, OnDestroy, AfterViewInit {
     this.sessionService.observable.pipe(
       takeUntil(this.closed_.observable),
       filter((session) => {
-        if (session?.access?.root) {
+        if (session?.root) {
           return true
         }
         return false
       }),
-      map((session) => session?.access?.token)
+      map((session) => session?.access)
     ).subscribe((token) => {
       this.token_ = token ?? ''
     })
@@ -86,7 +86,7 @@ export class AttachComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     const query = new HttpParams({
       fromObject: {
-        authorization: `Bearer ${this.token_}`,
+        access_token: `Bearer ${this.token_}`,
       }
     })
     this.listener = new Listener(

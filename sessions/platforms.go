@@ -27,7 +27,7 @@ func PlatformID(platform string, id int64) (string, error) {
 	return ``, errors.New(`not supported platform: ` + platform)
 }
 func platformID(platform string, id int64) string {
-	return platform + `-` + strconv.FormatInt(id, 64)
+	return platform + `-` + strconv.FormatInt(id, 10)
 }
 func DestroyID(id int64) (e error) {
 	for _, platform := range platforms {

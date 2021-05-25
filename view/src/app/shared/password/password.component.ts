@@ -7,6 +7,7 @@ import { ServerAPI } from 'src/app/core/core/api';
 import { md5String } from 'src/app/core/utils/utils';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { I18nService } from 'src/app/core/i18n/i18n.service';
+import { Manager } from 'src/app/core/session/session';
 
 @Component({
   selector: 'app-password',
@@ -30,10 +31,10 @@ export class PasswordComponent implements OnInit, OnDestroy {
   }
   onSave() {
     this.disabled = true
-    ServerAPI.v1.features.sessions.child('password').post(this.httpClient,
+    ServerAPI.v1.sessions.child('password').post(this.httpClient,
       {
         'old': md5String(this.old),
-        'value': md5String(this.val),
+        'password': md5String(this.val),
       },
     ).pipe(
       takeUntil(this.closed_.observable),
@@ -42,6 +43,11 @@ export class PasswordComponent implements OnInit, OnDestroy {
       })
     ).subscribe(() => {
       this.toasterService.pop('success', undefined, this.i18nService.get('password changed'))
+      const session = Manager.instance.session
+      if (session) {
+        Manager.instance.clear(session)
+      }
+      this.matDialogRef.close()
     }, (e) => {
       this.toasterService.pop('error', undefined, e)
     })

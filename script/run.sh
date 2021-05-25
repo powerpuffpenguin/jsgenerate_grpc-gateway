@@ -65,14 +65,14 @@ done
 
 if [[ $build != 0 ]];then
     "$BashDir/grpc.sh"
-    "$BashDir/static.sh"
+    "$BashDir/document.sh"
     "$BashDir/go.sh"
 else
     if [[ $grpc != 0 ]];then
         "$BashDir/grpc.sh"
     fi
     if [[ $static != 0 ]];then
-        "$BashDir/static.sh"
+        "$BashDir/document.sh"
     fi
     if [[ $code != 0 ]];then
         "$BashDir/go.sh"

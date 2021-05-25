@@ -22,14 +22,14 @@ service Session {
     // refresh token
     rpc Refresh (RefreshRequest) returns (RefreshResponse){
         option (google.api.http) = {
-            post: "/api/v1/features/sessions/refresh"
+            post: "/api/v1/sessions/refresh"
             body: "*"
         };
     }
     // change session's password
     rpc Password (PasswordRequest) returns (PasswordResponse){
         option (google.api.http) = {
-            post: "/api/v1/features/sessions/password/{access}"
+            post: "/api/v1/sessions/password"
             body: "*"
         };
     }
@@ -75,11 +75,10 @@ message RefreshResponse{
     string refresh = 2;
 }
 message PasswordRequest{
-    string access = 1;
     // old password
-    string old = 2;
+    string old = 1;
     // new password
-    string password = 3;
+    string password = 2;
 }
 message PasswordResponse{
     bool changed = 1;

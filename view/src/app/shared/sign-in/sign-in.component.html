@@ -1,9 +1,9 @@
-<ng-container *ngIf="access;then accessVIew;else signView"></ng-container>
+<ng-container *ngIf="session;then accessVIew;else signView"></ng-container>
 
 <ng-template #accessVIew>
     <h1 mat-dialog-title i18n>Sign in</h1>
     <div mat-dialog-content class="dialog-content">
-        <ng-container i18n>Welcome {{access?.data?.name}}, you have signed in.</ng-container>
+        <ng-container i18n>Welcome {{session?.who}}, you have signed in.</ng-container>
     </div>
 </ng-template>
 <ng-template #signView>
