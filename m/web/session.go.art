@@ -50,7 +50,6 @@ func (h Helper) ShouldBindSession(c *gin.Context) (session *sessionid.Session, e
 			e = cache.e
 			return
 		}
-		return
 	}
 	session, e = h.accessSession(c)
 	if e == nil && session == nil {

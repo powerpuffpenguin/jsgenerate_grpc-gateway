@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/binary"
 	"net/http"
 	"{{pkg}}/m/web/contrib/compression"
 
@@ -86,4 +87,11 @@ func (h Helper) Compression() gin.HandlerFunc {
 
 func (h Helper) Upgrade(w http.ResponseWriter, r *http.Request, responseHeader http.Header) (*websocket.Conn, error) {
 	return upgrader.Upgrade(w, r, responseHeader)
+}
+func (h Helper) WSWriteClose(ws *websocket.Conn, code uint16, msg string) (e error) {
+	b := make([]byte, 2+len(msg))
+	binary.BigEndian.PutUint16(b, code)
+	copy(b[2:], msg)
+	e = ws.WriteMessage(websocket.CloseMessage, b)
+	return
 }

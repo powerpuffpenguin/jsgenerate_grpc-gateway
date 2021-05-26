@@ -90,8 +90,8 @@ export class AttachComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     })
     this.listener = new Listener(
-      ServerAPI.v1.logger.websocketURL('attach') + '?' + query.toString(),
       this,
+      this.sessionService,
     )
   }
   onClickDetach() {
