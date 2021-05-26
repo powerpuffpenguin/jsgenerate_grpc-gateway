@@ -1,0 +1,62 @@
+package v1
+
+import (
+	"{{pkg}}/logger"
+	"{{pkg}}/m/web"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
+)
+
+type Logger struct {
+	web.Helper
+}
+
+func (h Logger) Register(router *gin.RouterGroup) {
+	r := router.Group(`logger`)
+	r.Use(h.CheckRoot)
+	r.GET(`attach/websocket`, h.attach)
+}
+func (h Logger) attach(c *gin.Context) {
+	ws, e := h.Upgrade(c.Writer, c.Request, nil)
+	if e != nil {
+		h.NegotiateError(c, http.StatusBadRequest, e)
+		return
+	}
+
+	done := make(chan struct{})
+	listener := logger.NewSnapshotListener(done)
+	logger.AddListener(listener)
+	go h.readWS(ws, done)
+	var (
+		ch      = listener.Channel()
+		working = true
+		data    []byte
+	)
+	for working {
+		select {
+		case <-done:
+			working = false
+		case data = <-ch:
+			if len(data) > 0 {
+				e = ws.WriteMessage(websocket.TextMessage, data)
+				if e != nil {
+					working = false
+				}
+			}
+		}
+	}
+	ws.Close()
+	logger.RemoveListener(listener)
+}
+func (h Logger) readWS(ws *websocket.Conn, done chan<- struct{}) {
+	var e error
+	for {
+		_, _, e = ws.ReadMessage()
+		if e != nil {
+			break
+		}
+	}
+	close(done)
+}

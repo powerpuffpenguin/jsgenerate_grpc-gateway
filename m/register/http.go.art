@@ -1,9 +1,10 @@
 package register
 
 import (
-	"{{pkg}}/logger"
-	"{{pkg}}/m/web/contrib/compression"
 	"net/http"
+	"{{pkg}}/logger"
+	"{{pkg}}/m/web"
+	"{{pkg}}/m/web/api"
 
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -11,22 +12,17 @@ import (
 	"go.uber.org/zap"
 )
 
-var _compression = compression.Compression(compression.BrDefaultCompression,
-	compression.GzDefaultCompression,
-)
-
-type queryBind struct {
-	AccessToken string `form:"access_token"`
-}
-
 func HTTP(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
+	var helper web.Helper
 	engine.NoRoute(func(c *gin.Context) {
 		c.Status(http.StatusOK)
 		if c.Request.Method == `GET` || c.Request.Method == `HEAD` {
 			c.Request.Header.Set(`Method`, c.Request.Method)
 		}
 		if c.Request.Header.Get(`Authorization`) == `` {
-			var query queryBind
+			var query struct {
+				AccessToken string `form:"access_token"`
+			}
 			c.ShouldBindQuery(&query)
 			if query.AccessToken != `` {
 				c.Request.Header.Set(`Authorization`, `Bearer `+query.AccessToken)
@@ -42,8 +38,10 @@ func HTTP(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
 			)
 		}
 		r := engine.Group(`document`)
-		r.Use(_compression)
+		r.Use(helper.Compression())
 		r.StaticFS(``, document)
 	}
 	// other gin route
+	var apis api.Helper
+	apis.Register(&engine.RouterGroup)
 }

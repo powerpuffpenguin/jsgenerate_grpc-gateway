@@ -20,7 +20,7 @@ local def = import "def.libsonnet";
             local refresh = def.Duration.Hour*12*3,
             local clear = def.Duration.Minute*30,
 
-            Backend: provider.Memory,
+            Backend: provider.Bolt,
             Memory: {
                     Access: access,
                     Refresh: refresh,
