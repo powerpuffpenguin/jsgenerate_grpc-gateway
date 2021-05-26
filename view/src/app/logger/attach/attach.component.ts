@@ -8,7 +8,7 @@ import { FitAddon } from 'xterm-addon-fit';
 import { WebLinksAddon } from 'xterm-addon-web-links';
 import { Subject } from 'rxjs';
 import { Closed } from 'src/app/core/utils/closed';
-import { HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 @Component({
   selector: 'logger-attach',
@@ -18,6 +18,7 @@ import { HttpParams } from '@angular/common/http';
 export class AttachComponent implements OnInit, OnDestroy, AfterViewInit {
   private token_ = ''
   constructor(private readonly sessionService: SessionService,
+    private readonly httpClient: HttpClient,
   ) { }
   private closed_ = new Closed()
   listener: Listener | undefined
@@ -90,6 +91,7 @@ export class AttachComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     })
     this.listener = new Listener(
+      this.httpClient,
       this,
       this.sessionService,
     )

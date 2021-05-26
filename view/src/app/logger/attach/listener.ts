@@ -1,8 +1,8 @@
-import { Session } from "src/app/core/session/session"
-import { takeUntil } from "rxjs/operators"
+import { Manager, Session } from "src/app/core/session/session"
+import { filter, takeUntil } from "rxjs/operators"
 import { SessionService } from "src/app/core/session/session.service"
 import { Closed } from "src/app/core/utils/closed"
-import { HttpParams } from "@angular/common/http"
+import { HttpClient, HttpParams } from "@angular/common/http"
 import { ServerAPI } from "src/app/core/core/api"
 
 interface Writer {
@@ -11,17 +11,18 @@ interface Writer {
 }
 export class Listener {
     private session_: Session | undefined
+    private connectSession_: Session | undefined
     constructor(
+        private readonly httpClient: HttpClient,
         public readonly writer: Writer,
         private readonly sessionService: SessionService,
     ) {
-        let first = true
         this.sessionService.observable.pipe(
             takeUntil(this.closed_.observable),
+            filter((session) => session?.access && session?.userdata.id ? true : false)
         ).subscribe((session) => {
             this.session_ = session
-            if (first && session) {
-                first = false
+            if (!this.websocket_) {
                 this._postConnect()
             }
         })
@@ -56,12 +57,14 @@ export class Listener {
         }
         this.timeout_ = setTimeout(() => {
             this.timeout_ = null
-            if (this.session_?.access && this.session_?.userdata.id) {
+            const session = this.session_
+            if (session?.access && session?.userdata?.id) {
                 const query = new HttpParams({
                     fromObject: {
-                        access_token: this.session_.access,
+                        access_token: session.access,
                     }
                 })
+                this.connectSession_ = this.session_
                 const url = ServerAPI.v1.logger.websocketURL('attach') + '?' + query.toString()
                 this._connect(url)
             }
@@ -94,7 +97,6 @@ export class Listener {
             ws.close()
             return
         }
-        this.delay_ = 1
         if (!this.interval_) {
             this.interval_ = setInterval(() => {
                 try {
@@ -107,21 +109,27 @@ export class Listener {
         }
         this.writer.writeln(`attach logger console`)
         ws.onmessage = (evt) => {
-            console.log('onmessage', evt)
             if (ws != this.websocket_) {
                 ws.close()
                 return
             }
+            this.delay_ = 1
             this._onmessage(ws, evt)
         }
     }
-    private _onclose(ws: WebSocket, evt: CloseEvent) {
+    private async _onclose(ws: WebSocket, evt: CloseEvent) {
         if (this.websocket_ != ws) {
             return
         }
         console.log(`ws closed code=${evt.code} reason=${evt.reason} `)
         this.websocket_ = undefined
-
+        if (evt.code == 401 && this.connectSession_) {
+            try {
+                await Manager.instance.refresh(this.httpClient, this.connectSession_)
+            } catch (e) {
+                console.warn(`refresh token error`)
+            }
+        }
         this._postConnect()
     }
     private _onmessage(ws: WebSocket, evt: MessageEvent) {
