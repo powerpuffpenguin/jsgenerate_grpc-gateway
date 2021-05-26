@@ -125,9 +125,9 @@ export class Listener {
         this.websocket_ = undefined
         if (evt.code == 401 && this.connectSession_) {
             try {
-                await Manager.instance.refresh(this.httpClient, this.connectSession_)
+                await Manager.instance.refresh(this.httpClient, this.connectSession_, evt.code, evt.reason)
             } catch (e) {
-                console.warn(`refresh token error`)
+                console.warn(`refresh token error`, e)
             }
         }
         this._postConnect()

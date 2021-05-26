@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Authorization, ServerAPI } from '../core/api';
+import { resolveHttpError } from '../core/restful';
 import { Completer } from '../utils/completer';
 import { getItem, setItem, removeItem } from "../utils/local-storage";
 import { md5String } from '../utils/utils';
@@ -139,6 +140,7 @@ export class Manager {
                 if (typeof access === "string" && access.length > 0
                     && typeof refresh === "string" && refresh.length > 0
                     && userdata !== null && typeof userdata === "object" && userdata.id) {
+                    this.remember_ = true
                     return new Session(access, refresh, userdata)
                 }
             }
@@ -152,13 +154,15 @@ export class Manager {
         return
     }
     private _save(session: Session) {
-        setItem(Key, JSON.stringify({
+        const data = JSON.stringify({
             userdata: session.userdata,
             access: session.access,
             refresh: session.refresh,
-        }))
+        })
+        console.log(`save token`, data)
+        setItem(Key, data)
     }
-    private refresh_: Completer<Session | undefined> | undefined
+    refresh_: Completer<Session | undefined> | undefined
     private readonly signining_ = new BehaviorSubject<boolean>(false)
     get signining(): Observable<boolean> {
         return this.signining_
@@ -237,7 +241,7 @@ export class Manager {
             })
         }
     }
-    async refresh(httpClient: HttpClient, session: Session): Promise<Session | undefined> {
+    async refresh(httpClient: HttpClient, session: Session, code?: number, msg?: string): Promise<Session | undefined> {
         if (this.refresh_) { // refreshing
             return this.refresh_.promise
         }
@@ -247,6 +251,12 @@ export class Manager {
             return
         } else if (session != current) { // already refresh
             return current
+        }
+        if (code == 403) {
+            if (msg == `token not exists`) {
+                this.clear(session)
+            }
+            throw new Error(`permission denied`)
         }
 
         // refresh
