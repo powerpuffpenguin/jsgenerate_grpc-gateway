@@ -234,7 +234,12 @@ export class Manager {
                 removeItem(Key)
             }
             this.subject_.next(undefined)
-            ServerAPI.v1.sessions.child('access', session.access).delete(httpClient).toPromise().then(() => {
+            ServerAPI.v1.sessions.child('access').delete(httpClient, {
+                headers: {
+                    Interceptor: 'none',
+                    Authorization: `Bearer ${session.access}`
+                }
+            }).toPromise().then(() => {
                 console.info(`signout who=${session.who}`)
             }, (e) => {
                 console.warn(`signout who=${session.who} error=${e}`)

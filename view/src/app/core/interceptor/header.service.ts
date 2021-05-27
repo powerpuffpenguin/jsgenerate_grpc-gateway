@@ -16,7 +16,6 @@ export class HeaderInterceptor implements HttpInterceptor {
     if (req.method == "GET" || req.method == "HEAD") {
       headers = headers.set('ngsw-bypass', '')
     }
-
     if (headers.has(`Interceptor`)) {
       const interceptor = headers.get(`Interceptor`)
       headers = headers.delete(`Interceptor`)
