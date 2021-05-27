@@ -32,6 +32,8 @@ class Metadata {
         name: string,
         tag: Array<string>,
         public readonly uuid: string,
+        public readonly aesKey: string,
+        public readonly aesIV: string,
     ) {
         pkg = pkg.replace('.', '/').replace('@', '').replace('-', '_')
         pkg = pkg.replace('//', '/').replace('__', '_')
@@ -76,7 +78,10 @@ async function getUUID(context: Context): Promise<string> {
 }
 export function jsgenerate(context: Context) {
     getUUID(context).then((uuid) => {
-        const md = new Metadata(context.pkg, context.name, context.tag, uuid)
+        const md = new Metadata(context.pkg, context.name, context.tag, uuid,
+            context.uuidv4(),
+            context.uuidv4(),
+        )
         const prefix = [
             '.git' + sep, 'document' + sep,
             join('view', 'node_modules'),

@@ -16,8 +16,10 @@ async function exists(filename) {
     return false;
 }
 class Metadata {
-    constructor(pkg, name, tag, uuid) {
+    constructor(pkg, name, tag, uuid, aesKey, aesIV) {
         this.uuid = uuid;
+        this.aesKey = aesKey;
+        this.aesIV = aesIV;
         this.date = new Date();
         this.project_ = '';
         this.pkg_ = '';
@@ -77,7 +79,7 @@ async function getUUID(context) {
 }
 function jsgenerate(context) {
     getUUID(context).then((uuid) => {
-        const md = new Metadata(context.pkg, context.name, context.tag, uuid);
+        const md = new Metadata(context.pkg, context.name, context.tag, uuid, context.uuidv4(), context.uuidv4());
         const prefix = [
             '.git' + path_1.sep, 'document' + path_1.sep,
             path_1.join('view', 'node_modules'),

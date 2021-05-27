@@ -4,10 +4,10 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { ToasterService } from 'angular2-toaster';
 import { Closed } from 'src/app/core/utils/closed';
 import { ServerAPI } from 'src/app/core/core/api';
-import { md5String } from 'src/app/core/utils/utils';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { I18nService } from 'src/app/core/i18n/i18n.service';
 import { Manager } from 'src/app/core/session/session';
+import { md5String } from 'src/app/core/utils/md5';
 
 @Component({
   selector: 'app-password',

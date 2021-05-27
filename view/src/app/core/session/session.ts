@@ -3,7 +3,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Authorization, ServerAPI } from '../core/api';
 import { Completer } from '../utils/completer';
 import { getItem, setItem, removeItem } from "../utils/local-storage";
-import { md5String, getUnix } from '../utils/utils';
+import { getUnix } from '../utils/utils';
+import { md5String } from '../utils/md5';
+import { aesDecrypt, aesEncrypt } from '../utils/aes';
 const Key = 'session'
 const Platform = 'web'
 export interface Userdata {
@@ -131,7 +133,7 @@ export class Manager {
             return
         }
         try {
-            const obj: Store = JSON.parse(str)
+            const obj: Store = JSON.parse(aesDecrypt(str))
             if (obj !== null && typeof obj === "object") {
                 const access = obj.access
                 const refresh = obj.refresh
@@ -153,13 +155,17 @@ export class Manager {
         return
     }
     private _save(session: Session) {
-        const data = JSON.stringify({
-            userdata: session.userdata,
-            access: session.access,
-            refresh: session.refresh,
-        })
-        console.log(`save token`, data)
-        setItem(Key, data)
+        try {
+            const data = JSON.stringify({
+                userdata: session.userdata,
+                access: session.access,
+                refresh: session.refresh,
+            })
+            console.log(`save token`, data)
+            setItem(Key, aesEncrypt(data))
+        } catch (e) {
+            console.log('save token error', e)
+        }
     }
     refresh_: Completer<Session | undefined> | undefined
     private readonly signining_ = new BehaviorSubject<boolean>(false)
@@ -192,8 +198,8 @@ export class Manager {
             completer = new Completer<Session | undefined>()
             this.refresh_ = completer
             const unix = getUnix()
-            password = md5String(password)
-            password = md5String(`${Platform}.${password}.${unix}`)
+            password = md5String(password).toString()
+            password = md5String(`${Platform}.${password}.${unix}`).toString()
             const response = await ServerAPI.v1.sessions.post<SigninResponse>(httpClient,
                 {
                     platform: Platform,
