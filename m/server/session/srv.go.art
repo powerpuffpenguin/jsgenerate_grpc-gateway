@@ -2,12 +2,13 @@ package session
 
 import (
 	"context"
+	"net/http"
+	"time"
 	"{{pkg}}/logger"
 	"{{pkg}}/m/helper"
 	grpc_session "{{pkg}}/protocol/session"
 	"{{pkg}}/sessions"
 	signal_session "{{pkg}}/signal/session"
-	"time"
 
 	"github.com/powerpuffpenguin/sessionid"
 	"go.uber.org/zap"
@@ -77,6 +78,15 @@ func (s server) Signin(ctx context.Context, req *grpc_session.SigninRequest) (re
 	}
 
 	access := session.Token()
+	if req.Cookie {
+		s.SetHTTPCookie(ctx, &http.Cookie{
+			Name:     s.CookieName(),
+			Value:    access,
+			Path:     `/`,
+			HttpOnly: true,
+		})
+	}
+
 	if ce := logger.Logger.Check(zap.InfoLevel, TAG); ce != nil {
 		ce.Write(
 			zap.Error(e),
@@ -102,19 +112,33 @@ var emptySignoutResponse grpc_session.SignoutResponse
 
 func (s server) Signout(ctx context.Context, req *grpc_session.SignoutRequest) (resp *grpc_session.SignoutResponse, e error) {
 	TAG := `session Signout`
-	e = sessions.DefaultManager().DestroyByToken(ctx, req.Access)
+	access := s.GetToken(ctx)
+	if access == `` {
+		resp = &emptySignoutResponse
+		return
+	}
+	e = sessions.DefaultManager().DestroyByToken(ctx, access)
 	if e != nil {
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`access`, req.Access),
+				zap.String(`access`, access),
 			)
 		}
 		return
 	}
+	if req.Cookie {
+		s.SetHTTPCookie(ctx, &http.Cookie{
+			Name:     s.CookieName(),
+			Value:    ``,
+			Path:     `/`,
+			HttpOnly: true,
+			MaxAge:   -1,
+		})
+	}
 	if ce := logger.Logger.Check(zap.InfoLevel, TAG); ce != nil {
 		ce.Write(
-			zap.String(`access`, req.Access),
+			zap.String(`access`, access),
 		)
 	}
 	resp = &emptySignoutResponse
@@ -155,17 +179,8 @@ var falsePasswordResponse grpc_session.PasswordResponse
 
 func (s server) Password(ctx context.Context, req *grpc_session.PasswordRequest) (resp *grpc_session.PasswordResponse, e error) {
 	TAG := `session Password`
-	_, session, e := s.Session(ctx)
+	_, userdata, e := s.Userdata(ctx)
 	if e != nil {
-		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
-			ce.Write(
-				zap.Error(e),
-			)
-		}
-		return
-	}
-	var userdata sessions.Userdata
-	if e = session.Get(ctx, sessions.KeyUserdata, &userdata); e != nil {
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
@@ -206,22 +221,21 @@ var emptyUserResponse grpc_session.UserResponse
 
 func (s server) User(ctx context.Context, req *grpc_session.UserRequest) (resp *grpc_session.UserResponse, e error) {
 	TAG := `session User`
-	session, e := sessions.DefaultManager().Get(ctx, req.Access)
+	_, session, e := s.Session(ctx)
 	if e != nil {
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`access`, req.Access),
 			)
 		}
 		return
 	}
 	e = session.Prepare(ctx, sessions.KeyModtime, sessions.KeyUserdata)
 	if e != nil {
+		e = s.ToTokenError(e)
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`access`, req.Access),
 			)
 		}
 		return
@@ -229,10 +243,10 @@ func (s server) User(ctx context.Context, req *grpc_session.UserRequest) (resp *
 	var modtime time.Time
 	e = session.Get(ctx, sessions.KeyModtime, &modtime)
 	if e != nil {
+		e = s.ToTokenError(e)
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`access`, req.Access),
 			)
 		}
 		return
@@ -244,13 +258,13 @@ func (s server) User(ctx context.Context, req *grpc_session.UserRequest) (resp *
 		} else {
 			var userdata sessions.Userdata
 			if e := session.Get(ctx, sessions.KeyUserdata, &userdata); e != nil {
+				e = s.ToTokenError(e)
 				if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 					ce.Write(
 						zap.Error(e),
-						zap.String(`access`, req.Access),
 					)
 				}
-				return nil
+				return e
 			}
 			resp = &grpc_session.UserResponse{
 				Id:            userdata.ID,

@@ -16,7 +16,7 @@ service Session {
     // sign out and destroy token
     rpc Signout (SignoutRequest) returns (SignoutResponse){
         option (google.api.http) = {
-            delete: "/api/v1/sessions/access/{access}"
+            delete: "/api/v1/sessions/access"
         };
     }
     // refresh token
@@ -36,7 +36,7 @@ service Session {
     // get user info
     rpc User (UserRequest) returns (UserResponse){
         option (google.api.http) = {
-            get: "/api/v1/sessions/access/{access}"
+            get: "/api/v1/sessions/access"
         };
     }
 }
@@ -44,6 +44,8 @@ message SigninRequest{
     string platform = 1;
     string name = 2;
     string password = 3;
+    // cookie mode only for debug
+    bool cookie = 4;
 }
 message SigninResponse{
     // access token
@@ -58,7 +60,8 @@ message SigninResponse{
     repeated int32 authorization = 6;
 }
 message SignoutRequest{
-    string access = 1;
+    // cookie mode only for debug
+    bool cookie = 1;
 }
 message SignoutResponse{
 }
@@ -84,7 +87,6 @@ message PasswordResponse{
     bool changed = 1;
 }
 message UserRequest{
-    string access =1;
 }
 message UserResponse{
     int64 id = 1;
