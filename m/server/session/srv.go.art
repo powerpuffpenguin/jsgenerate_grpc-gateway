@@ -22,12 +22,31 @@ type server struct {
 
 func (s server) Signin(ctx context.Context, req *grpc_session.SigninRequest) (resp *grpc_session.SigninResponse, e error) {
 	TAG := `session Signin`
-	result, e := signal_session.Signin(ctx, req.Name, req.Password)
+	at := time.Unix(req.Unix, 0)
+	now := time.Now()
+	if at.After(now.Add(time.Minute*5)) ||
+		at.Before(now.Add(-time.Minute*5)) {
+		e = s.Error(codes.InvalidArgument, `The request has expired, please confirm that the system time is correct.`)
+		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
+			ce.Write(
+				zap.Error(e),
+				zap.String(`name`, req.Name),
+				zap.String(`password`, req.Password),
+				zap.Int64(`unix`, req.Unix),
+				zap.String(`at`, at.Local().String()),
+			)
+		}
+		return
+	}
+	result, e := signal_session.Signin(ctx, req.Platform, req.Unix, req.Name, req.Password)
 	if e != nil {
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
 				zap.String(`name`, req.Name),
+				zap.String(`password`, req.Password),
+				zap.Int64(`unix`, req.Unix),
+				zap.String(`at`, at.Local().String()),
 			)
 		}
 		return
@@ -47,6 +66,9 @@ func (s server) Signin(ctx context.Context, req *grpc_session.SigninRequest) (re
 			ce.Write(
 				zap.Error(e),
 				zap.String(`name`, req.Name),
+				zap.String(`password`, req.Password),
+				zap.Int64(`unix`, req.Unix),
+				zap.String(`at`, at.Local().String()),
 			)
 		}
 		return
@@ -72,6 +94,9 @@ func (s server) Signin(ctx context.Context, req *grpc_session.SigninRequest) (re
 			ce.Write(
 				zap.Error(e),
 				zap.String(`name`, req.Name),
+				zap.String(`password`, req.Password),
+				zap.Int64(`unix`, req.Unix),
+				zap.String(`at`, at.Local().String()),
 			)
 		}
 		return
@@ -93,7 +118,10 @@ func (s server) Signin(ctx context.Context, req *grpc_session.SigninRequest) (re
 			zap.String(`access`, access),
 			zap.String(`refresh`, refresh),
 			zap.Int64(`id`, result.ID),
-			zap.String(`name`, result.Name),
+			zap.String(`name`, req.Name),
+			zap.String(`password`, req.Password),
+			zap.Int64(`unix`, req.Unix),
+			zap.String(`at`, at.Local().String()),
 		)
 	}
 	resp = &grpc_session.SigninResponse{

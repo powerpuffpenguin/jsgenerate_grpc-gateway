@@ -1,10 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Authorization, ServerAPI } from '../core/api';
-import { resolveHttpError } from '../core/restful';
 import { Completer } from '../utils/completer';
 import { getItem, setItem, removeItem } from "../utils/local-storage";
-import { md5String } from '../utils/utils';
+import { md5String, getUnix } from '../utils/utils';
 const Key = 'session'
 const Platform = 'web'
 export interface Userdata {
@@ -192,13 +191,15 @@ export class Manager {
             }
             completer = new Completer<Session | undefined>()
             this.refresh_ = completer
-
+            const unix = getUnix()
             password = md5String(password)
+            password = md5String(`${Platform}.${password}.${unix}`)
             const response = await ServerAPI.v1.sessions.post<SigninResponse>(httpClient,
                 {
                     platform: Platform,
                     name: name,
                     password: password,
+                    unix: unix,
                 },
                 {
                     headers: {

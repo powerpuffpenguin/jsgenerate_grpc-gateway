@@ -7,6 +7,8 @@ import (
 
 type SigninRequest struct {
 	Context  context.Context
+	Platform string
+	Unix     int64
 	Name     string
 	Password string
 }
@@ -25,13 +27,18 @@ var defaultSignin []SigninHandle
 func ConnectSignin(f SigninHandle) {
 	defaultSignin = append(defaultSignin, f)
 }
-func Signin(ctx context.Context, name, password string) (result *SigninResponse, e error) {
+func Signin(ctx context.Context,
+	platform string, unix int64,
+	name, password string,
+) (result *SigninResponse, e error) {
 	if len(defaultSignin) == 0 {
 		e = errors.New(`signin solt nil`)
 		return
 	}
 	req := &SigninRequest{
 		Context:  ctx,
+		Platform: platform,
+		Unix:     unix,
 		Name:     name,
 		Password: password,
 	}

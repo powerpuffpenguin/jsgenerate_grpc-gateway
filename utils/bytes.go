@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"reflect"
 	"unsafe"
 )
@@ -24,4 +26,9 @@ func BytesToString(b []byte) (str string) {
 	strHeader.Data = sliceHeader.Data
 	strHeader.Len = sliceHeader.Len
 	return str
+}
+
+func MD5String(val string) (result string) {
+	b := md5.Sum(StringToBytes(val))
+	return hex.EncodeToString(b[:])
 }

@@ -5,12 +5,14 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"strconv"
 	"sync"
+	"time"
 	"{{pkg}}/db"
 	"{{pkg}}/db/manipulator"
 	"{{pkg}}/logger"
 	signal_session "{{pkg}}/signal/session"
-	"time"
+	"{{pkg}}/utils"
 
 	"go.uber.org/zap"
 )
@@ -70,7 +72,6 @@ func doInit() (e error) {
 		)
 		fmt.Println(`user =`, name)
 		fmt.Println(`password =`, password)
-		p = md5.Sum(([]byte)(password))
 		_, e = session.InsertOne(&DataOfUser{
 			Name:          name,
 			Password:      hex.EncodeToString(p[:]),
@@ -88,11 +89,16 @@ func soltSignin(req *signal_session.SigninRequest, resp *signal_session.SigninRe
 		Get(&bean)
 	if e != nil {
 		return
-	} else if exists && req.Password == bean.Password {
-		resp.ID = bean.ID
-		resp.Name = bean.Name
-		resp.Nickname = bean.Nickname
-		resp.Authorization = bean.Authorization
+	} else if exists {
+		pwd := utils.MD5String(req.Platform +
+			`.` + bean.Password +
+			`.` + strconv.FormatInt(req.Unix, 10))
+		if pwd == req.Password {
+			resp.ID = bean.ID
+			resp.Name = bean.Name
+			resp.Nickname = bean.Nickname
+			resp.Authorization = bean.Authorization
+		}
 	}
 	return
 }

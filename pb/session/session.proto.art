@@ -43,9 +43,12 @@ service Session {
 message SigninRequest{
     string platform = 1;
     string name = 2;
+    // md5string(platform + '.' + md5string(input_password) + '.' + unix)
     string password = 3;
+    // the current time unix value error cannot exceed 5 minutes
+    int64 unix = 4;
     // cookie mode only for debug
-    bool cookie = 4;
+    bool cookie = 5;
 }
 message SigninResponse{
     // access token
