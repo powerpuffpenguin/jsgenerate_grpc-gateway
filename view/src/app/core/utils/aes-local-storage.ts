@@ -4,8 +4,11 @@ import { aesDecrypt, aesEncrypt } from './aes';
 
 export function getItem(key: string, def?: string): string | null {
     const result = nativeGetItem(key)
-    if (typeof def === "string" && result === null) {
+    if (typeof def === "string" && typeof result !== "string") {
         return def
+    }
+    if (typeof result !== "string") {
+        return null
     }
     const obj = JSON.parse(result ?? '{}')
     const at = obj.at

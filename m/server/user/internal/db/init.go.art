@@ -5,14 +5,14 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"strconv"
-	"sync"
-	"time"
 	"{{pkg}}/db"
 	"{{pkg}}/db/manipulator"
 	"{{pkg}}/logger"
 	signal_session "{{pkg}}/signal/session"
 	"{{pkg}}/utils"
+	"strconv"
+	"sync"
+	"time"
 
 	"go.uber.org/zap"
 )
@@ -74,7 +74,7 @@ func doInit() (e error) {
 		fmt.Println(`password =`, password)
 		_, e = session.InsertOne(&DataOfUser{
 			Name:          name,
-			Password:      hex.EncodeToString(p[:]),
+			Password:      utils.MD5String(password),
 			Authorization: []int32{db.Root},
 		})
 	}

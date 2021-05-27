@@ -199,8 +199,8 @@ export class Manager {
             completer = new Completer<Session | undefined>()
             this.refresh_ = completer
             const unix = getUnix()
-            password = md5String(password).toString()
-            password = md5String(`${Platform}.${password}.${unix}`).toString()
+            password = md5String(password)
+            password = md5String(`${Platform}.${password}.${unix}`)
             const response = await ServerAPI.v1.sessions.post<SigninResponse>(httpClient,
                 {
                     platform: Platform,
