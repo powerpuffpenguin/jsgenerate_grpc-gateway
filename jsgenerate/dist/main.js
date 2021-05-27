@@ -86,6 +86,12 @@ function jsgenerate(context) {
         if (!md.view) {
             prefix.push('view' + path_1.sep);
             exclude.push('view');
+            let tmp = path_1.join('static', 'public');
+            prefix.push(tmp + path_1.sep);
+            exclude.push(tmp);
+            tmp = path_1.join('m', 'web', 'view');
+            prefix.push(tmp + path_1.sep);
+            exclude.push(tmp);
             const locales = ['en-US', 'zh-Hans', 'zh-Hant'];
             locales.forEach((str) => {
                 str = path_1.join('assets', str);

@@ -1,6 +1,7 @@
 Target="{{project}}"
 Dir=$(cd "$(dirname $BASH_SOURCE)/.." && pwd)
 Version="v0.0.1"
+View={{view?1:0}}
 Platforms=(
     darwin/amd64
     windows/amd64

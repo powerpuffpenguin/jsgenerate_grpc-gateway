@@ -15,19 +15,22 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func (h Helper) toHTTPError(c *gin.Context, e error) {
+func (h Helper) ToHTTPError(c *gin.Context, name string, e error) {
 	if os.IsNotExist(e) {
-		h.NegotiateError(c, http.StatusNotFound, e)
+		h.NegotiateErrorString(c, http.StatusNotFound, `not exists : `+name)
+		return
+	}
+	if os.IsExist(e) {
+		h.NegotiateErrorString(c, http.StatusForbidden, `already exists : `+name)
 		return
 	}
 	if os.IsPermission(e) {
-		h.NegotiateError(c, http.StatusForbidden, e)
+		h.NegotiateErrorString(c, http.StatusForbidden, `forbidden : `+name)
 		return
 	}
 	h.NegotiateError(c, http.StatusInternalServerError, e)
 }
 
-// NegotiateFilesystem .
 func (h Helper) NegotiateFilesystem(c *gin.Context, fs http.FileSystem, path string, index bool) {
 	if path == `/` || path == `` {
 		path = `/index.html`
@@ -35,7 +38,7 @@ func (h Helper) NegotiateFilesystem(c *gin.Context, fs http.FileSystem, path str
 	f, e := fs.Open(path)
 	if e != nil {
 		if !index {
-			h.toHTTPError(c, e)
+			h.ToHTTPError(c, path, e)
 			return
 		}
 		if path != `/index.html` && os.IsNotExist(e) {
@@ -44,13 +47,13 @@ func (h Helper) NegotiateFilesystem(c *gin.Context, fs http.FileSystem, path str
 		}
 	}
 	if e != nil {
-		h.toHTTPError(c, e)
+		h.ToHTTPError(c, path, e)
 		return
 	}
 	stat, e := f.Stat()
 	if e != nil {
 		f.Close()
-		h.toHTTPError(c, e)
+		h.ToHTTPError(c, path, e)
 		return
 	}
 	if stat.IsDir() {
@@ -64,8 +67,7 @@ func (h Helper) NegotiateFilesystem(c *gin.Context, fs http.FileSystem, path str
 	f.Close()
 }
 
-// NegotiateObject .
-func (h Helper) NegotiateObject(c *gin.Context, modtime time.Time, obj interface{}) {
+func (h Helper) NegotiateObject(c *gin.Context, modtime time.Time, name string, obj interface{}) {
 	reader := &objectReader{
 		obj: obj,
 	}
@@ -81,7 +83,7 @@ func (h Helper) NegotiateObject(c *gin.Context, modtime time.Time, obj interface
 		reader.marshal = json.Marshal
 		c.Writer.Header().Set(`Content-Type`, `application/json; charset=utf-8`)
 	}
-	http.ServeContent(c.Writer, c.Request, `test`, modtime, reader)
+	http.ServeContent(c.Writer, c.Request, name, modtime, reader)
 }
 
 type objectReader struct {

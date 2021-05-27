@@ -2,7 +2,11 @@ package main
 
 import (
 	"log"
-	_ "{{pkg}}/assets/document/statik"
+	_ "{{pkg}}/assets/document/statik"{{if view}}
+	_ "{{pkg}}/assets/en-US/statik"
+	_ "{{pkg}}/assets/public/statik"
+	_ "{{pkg}}/assets/zh-Hans/statik"
+	_ "{{pkg}}/assets/zh-Hant/statik"{{/if}}
 	"{{pkg}}/cmd"
 
 	_ "github.com/denisenkom/go-mssqldb"

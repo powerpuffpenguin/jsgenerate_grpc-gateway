@@ -9,7 +9,7 @@ if [[ "$Command" == "" ]];then
 fi
 
 function help(){
-    echo "static build helper"
+    echo "document build helper"
     echo
     echo "Usage:"
     echo "  $Command [flags]"
@@ -18,9 +18,8 @@ function help(){
     echo "  -h, --help          help for $Command"
 }
 
-ARGS=`getopt -o hl: --long help,lang: -n "$Command" -- "$@"`
+ARGS=`getopt -o h --long help -n "$Command" -- "$@"`
 eval set -- "${ARGS}"
-lang="go"
 while true
 do
     case "$1" in

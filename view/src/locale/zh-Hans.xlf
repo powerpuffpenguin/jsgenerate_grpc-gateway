@@ -42,20 +42,20 @@
           <context context-type="linenumber">4</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="4a3a61bc031934df1445644ecf5694d01fb29ad8" datatype="html">
-        <source> This is a system built by the jsgenerate_grpc framework. jsgenerate_grpc is a open source gprc framework developed by 飞天小企鹅 . For more information about jsgenerate_grpc, please see source description. </source>
-        <target>本系统使用 jsgenerate_grpc 框架构建。jsgenerate_grpc 是由 飞天小企鹅 研发的一个开源 gprc 框架。更多关于 jsgenerate_grpc 的信息，请查看源代码说明。</target>
+      <trans-unit id="127120f0c7eebcf2a386ff863ca8a77c14fd14eb" datatype="html">
+        <source> This is a system built by the jsgenerate_grpc-gateway framework. jsgenerate_grpc-gateway is a open source gprc framework developed by 飞天小企鹅 . For more information about jsgenerate_grpc-gateway, please see source description. </source>
+        <target>本系统使用 jsgenerate_grpc-gateway  框架构建。jsgenerate_grpc-gateway 是由 飞天小企鹅 研发的一个开源 gprc 框架。更多关于 jsgenerate_grpc-gateway 的信息，请查看源代码说明。</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/content/about/about.component.html</context>
           <context context-type="linenumber">8,12</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="3fd90eea04f791c95ae64cc088e8008ffac4f82c" datatype="html">
-        <source>Source Code </source>
+      <trans-unit id="76b8339d5b6a70b6871600727ac3a9510e59d26f" datatype="html">
+        <source>Source Code</source>
         <target>源代码</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/content/about/about.component.html</context>
-          <context context-type="linenumber">13,14</context>
+          <context context-type="linenumber">14</context>
         </context-group>
       </trans-unit>
       <trans-unit id="44fda12d62d20b1b66e58ede52ba342a5341d730" datatype="html">
@@ -135,7 +135,7 @@
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/navigation-bar/navigation-bar.component.html</context>
-          <context context-type="linenumber">56</context>
+          <context context-type="linenumber">50</context>
         </context-group>
       </trans-unit>
       <trans-unit id="a2252a948e0c04930a57b4b97df137cd2e8ba3f6" datatype="html">
@@ -207,7 +207,7 @@
         <target>选择页面主题</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/navigation-bar/navigation-bar.component.html</context>
-          <context context-type="linenumber">17</context>
+          <context context-type="linenumber">18</context>
         </context-group>
       </trans-unit>
       <trans-unit id="c32ef07f8803a223a83ed17024b38e8d82292407" datatype="html">
@@ -215,7 +215,7 @@
         <target>密码</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/navigation-bar/navigation-bar.component.html</context>
-          <context context-type="linenumber">44</context>
+          <context context-type="linenumber">38</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/sign-in/sign-in.component.html</context>
@@ -235,7 +235,7 @@
         <target>用户管理</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/navigation-bar/navigation-bar.component.html</context>
-          <context context-type="linenumber">51</context>
+          <context context-type="linenumber">45</context>
         </context-group>
       </trans-unit>
       <trans-unit id="8fe73a4787b8068b2ba61f54ab7e0f9af2ea1fc9" datatype="html">
@@ -243,7 +243,7 @@
         <target>版本</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/navigation-bar/navigation-bar.component.html</context>
-          <context context-type="linenumber">61</context>
+          <context context-type="linenumber">55</context>
         </context-group>
       </trans-unit>
       <trans-unit id="5d22c795daf43877a5f708dca2bccd549eb0471d" datatype="html">
@@ -251,7 +251,7 @@
         <target>登出</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/navigation-bar/navigation-bar.component.html</context>
-          <context context-type="linenumber">67</context>
+          <context context-type="linenumber">61</context>
         </context-group>
       </trans-unit>
       <trans-unit id="287d3301a32a65a1b31116bda5d3a6463158c42a" datatype="html">
@@ -259,7 +259,7 @@
         <target>登入</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/navigation-bar/navigation-bar.component.html</context>
-          <context context-type="linenumber">72</context>
+          <context context-type="linenumber">66</context>
         </context-group>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/sign-in/sign-in.component.html</context>
@@ -378,9 +378,9 @@
           <context context-type="linenumber">14</context>
         </context-group>
       </trans-unit>
-      <trans-unit id="08ade5a54735040b792222377ab8defaf93590df" datatype="html">
-        <source>Welcome <x id="INTERPOLATION" equiv-text="{{access?.data?.name}}"/>, you have signed in.</source>
-        <target>欢迎 <x id="INTERPOLATION" equiv-text="{{access?.data?.name}}"/>，你已经登入系统。</target>
+      <trans-unit id="dfabbcc02f3a29a99e9640b397c287902bfbf1dd" datatype="html">
+        <source>Welcome <x id="INTERPOLATION" equiv-text="{{session?.who}}"/>, you have signed in.</source>
+        <target>欢迎 <x id="INTERPOLATION" equiv-text="{{session?.who}}"/>，你已经登入系统。</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/shared/sign-in/sign-in.component.html</context>
           <context context-type="linenumber">6</context>

@@ -5,7 +5,8 @@ import (
 	"{{pkg}}/logger"
 	"{{pkg}}/m/helper"
 	"{{pkg}}/m/web"
-	"{{pkg}}/m/web/api"
+	"{{pkg}}/m/web/api"{{if view}}
+	"{{pkg}}/m/web/view"{{/if}}
 
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -47,7 +48,16 @@ func HTTP(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
 		r := engine.Group(`document`)
 		r.Use(w.Compression())
 		r.StaticFS(``, document)
+	}{{if view}}
+	static, e := fs.NewWithNamespace(`static`)
+	if e != nil {
+		logger.Logger.Panic(`statik static error`,
+			zap.Error(e),
+		)
 	}
+	engine.Group(`static`).Use(w.Compression()).StaticFS(``, static)
+	var views view.Helper
+	views.Register(&engine.RouterGroup){{/if}}
 	// other gin route
 	var apis api.Helper
 	apis.Register(&engine.RouterGroup)

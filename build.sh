@@ -3,6 +3,10 @@
 set -e
 
 BashDir=$(cd "$(dirname $BASH_SOURCE)" && pwd)
+eval $(cat "$BashDir/script/conf.sh")
+if [[ "$Command" == "" ]];then
+    Command="$0"
+fi
 
 function help(){
     echo "build script"
@@ -16,6 +20,9 @@ function help(){
     echo "  clear             clear output"
     echo "  document          static build document"
     echo "  go                go build helper"
+    if [[ $View == 1 ]];then
+        echo "  view              view build helper"
+    fi
     echo "  grpc              grpc protoc helper"
     echo "  pack              pack release"
     echo "  run               run project"
@@ -48,6 +55,17 @@ case "$1" in
         shift
         export Command="$0 document"
         "$BashDir/script/document.sh" "$@"
+    ;;
+    view)
+        if [[ $View == 1 ]];then
+            shift
+            export Command="$0 view"
+            "$BashDir/script/view.sh" "$@"
+        else
+            echo Error: unknown command "$1" for "$0"
+            echo "Run '$0 --help' for usage."
+            exit 1
+        fi
     ;;
     grpc)
         shift

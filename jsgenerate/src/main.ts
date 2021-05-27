@@ -86,6 +86,12 @@ export function jsgenerate(context: Context) {
         if (!md.view) {
             prefix.push('view' + sep)
             exclude.push('view')
+            let tmp = join('static', 'public')
+            prefix.push(tmp + sep)
+            exclude.push(tmp)
+            tmp = join('m', 'web', 'view')
+            prefix.push(tmp + sep)
+            exclude.push(tmp)
             const locales = ['en-US', 'zh-Hans', 'zh-Hant']
             locales.forEach((str) => {
                 str = join('assets', str)
