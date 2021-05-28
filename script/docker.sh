@@ -14,13 +14,12 @@ function help(){
     echo "  $Command [flags]"
     echo
     echo "Flags:"
-    echo "  -g, --go         build go"
     echo "  -p, --push           push to hub"
     echo "  -h, --help          help for $Command"
 }
 
 
-ARGS=`getopt -o hgp --long help,go,push -n "$Command" -- "$@"`
+ARGS=`getopt -o hp --long help,push -n "$Command" -- "$@"`
 eval set -- "${ARGS}"
 go=0
 push=0
@@ -51,14 +50,19 @@ do
     esac
 done
 
-if [[ "$go" == 1 ]];then
-    "$BashDir/go.sh" -u -P linux/amd64
-    cp "$Dir/bin/server" "$Dir/docker/server/"
-fi
-
 cd "$Dir/docker"
-sudo docker build -t king011/sessionid_server:"$Version" .
+args=(
+    sudo docker build -t "\"$Docker:$Version\"" .
+)
+exec="${args[@]}"
+echo $exec
+eval "$exec"
 
 if [[ "$push" == 1 ]];then
-    sudo docker push king011/sessionid_server:"$Version"
+    args=(
+        sudo docker push "\"$Docker:$Version\""
+    )
+    exec="${args[@]}"
+    echo $exec
+    eval "$exec"
 fi
