@@ -28,16 +28,15 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "i18nLocale": "zh-Hant",
-            "i18nFormat": "xlf",
-            "i18nFile": "src/locale/zh-Hant.xlf",
+            "localize": [
+              "zh-Hant"
+            ],
             "i18nMissingTranslation": "warning",
             "outputPath": "dist/view",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
-            "aot": true,
             "assets": [
               "src/favicon.ico",
               "src/assets"
@@ -45,7 +44,13 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -75,7 +80,8 @@
                 }
               ]
             }
-          }
+          },
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
