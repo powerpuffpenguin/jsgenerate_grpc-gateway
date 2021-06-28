@@ -162,7 +162,7 @@ fi
 cd "$Dir/view"
 args=(
  ng build 
- --prod  
+ --configuration production
  --base-href /view/
  --localize
 )
