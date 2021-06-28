@@ -35,7 +35,8 @@ class Metadata {
         public readonly aesKey: string,
         public readonly aesIV: string,
     ) {
-        pkg = pkg.replace('.', '/').replace('@', '').replace('-', '_')
+        // pkg = pkg.replace('.', '/').replace('@', '').replace('-', '_')
+        pkg = pkg.replace('@', '').replace('-', '_')
         pkg = pkg.replace('//', '/').replace('__', '_')
         this.pkg_ = pkg
         name = name.replace('.', '').replace('@', '').replace('-', '_').replace('/', '')

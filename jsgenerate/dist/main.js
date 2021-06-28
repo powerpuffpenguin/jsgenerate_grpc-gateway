@@ -28,7 +28,8 @@ class Metadata {
         this.initTrunc = false;
         this.initSupplement = false;
         this.grpcPrefix = 'jsgenerate_';
-        pkg = pkg.replace('.', '/').replace('@', '').replace('-', '_');
+        // pkg = pkg.replace('.', '/').replace('@', '').replace('-', '_')
+        pkg = pkg.replace('@', '').replace('-', '_');
         pkg = pkg.replace('//', '/').replace('__', '_');
         this.pkg_ = pkg;
         name = name.replace('.', '').replace('@', '').replace('-', '_').replace('/', '');
