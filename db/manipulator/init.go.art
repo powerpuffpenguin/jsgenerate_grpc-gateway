@@ -23,6 +23,12 @@ func Init(cnf *configure.DB) {
 		)
 	}
 	_Engine = engine
+	if ce := logger.Logger.Check(zap.InfoLevel, `db group`); ce != nil {
+		ce.Write(
+			zap.String(`driver`, cnf.Driver),
+			zap.Strings(`source`, cnf.Source),
+		)
+	}
 	engine.ShowSQL(cnf.ShowSQL)
 	// cache
 	if cnf.Cache.Record > 0 {

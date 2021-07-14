@@ -6,7 +6,7 @@ import (
 	"{{pkg}}/configure"
 	"{{pkg}}/m/web"
 	v1 "{{pkg}}/m/web/api/v1"
-
+	"google.golang.org/grpc"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +18,7 @@ type Helper struct {
 
 var maxBytesReader int64
 
-func (h Helper) Register(router *gin.RouterGroup) {
+func (h Helper) Register(cc *grpc.ClientConn, router *gin.RouterGroup) {
 	maxBytesReader = int64(configure.DefaultConfigure().HTTP.Option.MaxRecvMsgSize)
 	r := router.Group(BaseURL)
 	if maxBytesReader > 0 {
@@ -29,7 +29,7 @@ func (h Helper) Register(router *gin.RouterGroup) {
 		v1.Helper{},
 	}
 	for _, m := range ms {
-		m.Register(r)
+		m.Register(cc, r)
 	}
 }
 

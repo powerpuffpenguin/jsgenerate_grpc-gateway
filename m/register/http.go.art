@@ -7,14 +7,14 @@ import (
 	"{{pkg}}/m/web"
 	"{{pkg}}/m/web/api"{{if view}}
 	"{{pkg}}/m/web/view"{{/if}}
-
+	"google.golang.org/grpc"
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rakyll/statik/fs"
 	"go.uber.org/zap"
 )
 
-func HTTP(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
+func HTTP(cc *grpc.ClientConn, engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
 	var w web.Helper
 	engine.NoRoute(func(c *gin.Context) {
 		c.Status(http.StatusOK)
@@ -60,5 +60,5 @@ func HTTP(engine *gin.Engine, gateway *runtime.ServeMux, swagger bool) {
 	views.Register(&engine.RouterGroup){{/if}}
 	// other gin route
 	var apis api.Helper
-	apis.Register(&engine.RouterGroup)
+	apis.Register(cc, &engine.RouterGroup)
 }

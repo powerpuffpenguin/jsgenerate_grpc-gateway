@@ -40,5 +40,21 @@ func (c *Configure) Load(filename string) (e error) {
 		return
 	}
 	e = json.Unmarshal([]byte(jsonStr), c)
+	if e != nil {
+		return
+	}
+	var formats = []format{
+		&c.DB, &c.Session,
+	}
+	for _, format := range formats {
+		e = format.format()
+		if e != nil {
+			return
+		}
+	}
 	return
+}
+
+type format interface {
+	format() (e error)
 }

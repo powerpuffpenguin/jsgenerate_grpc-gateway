@@ -2,8 +2,9 @@ package web
 
 import (
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
 
 type IHelper interface {
-	Register(*gin.RouterGroup)
+	Register(*grpc.ClientConn, *gin.RouterGroup)
 }

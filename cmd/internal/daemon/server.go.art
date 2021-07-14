@@ -42,7 +42,7 @@ func newServer(l net.Listener, swagger, debug bool, cnf *configure.ServerOption)
 
 	gateway := newGateway()
 	mux := gin.Default()
-	register.HTTP(mux, gateway, swagger)
+	register.HTTP(clientConn, mux, gateway, swagger)
 
 	s = &Server{
 		pipe:  pipe,

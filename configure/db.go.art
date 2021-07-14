@@ -1,5 +1,11 @@
 package configure
 
+import (
+	"strings"
+
+	"{{pkg}}/utils"
+)
+
 type DB struct {
 	Driver  string
 	Source  []string
@@ -14,4 +20,15 @@ type DB struct {
 		}
 	}
 	MaxOpen, MaxIdle int
+}
+
+func (d *DB) format() (e error) {
+	d.Driver = strings.ToLower(strings.TrimSpace(d.Driver))
+	if d.Driver == "sqlite3" {
+		basePath := utils.BasePath()
+		for i, source := range d.Source {
+			d.Source[i] = utils.Abs(basePath, source)
+		}
+	}
+	return
 }

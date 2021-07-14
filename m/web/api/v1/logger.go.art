@@ -6,7 +6,8 @@ import (
 	"{{pkg}}/db"
 	"{{pkg}}/logger"
 	"{{pkg}}/m/web"
-
+	
+	"google.golang.org/grpc"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/powerpuffpenguin/sessionid"
@@ -16,7 +17,7 @@ type Logger struct {
 	web.Helper
 }
 
-func (h Logger) Register(router *gin.RouterGroup) {
+func (h Logger) Register(cc *grpc.ClientConn, router *gin.RouterGroup) {
 	r := router.Group(`logger`)
 	r.GET(`attach`, h.attach)
 }

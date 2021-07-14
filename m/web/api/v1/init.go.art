@@ -2,6 +2,7 @@ package v1
 
 import (
 	"{{pkg}}/m/web"
+	"google.golang.org/grpc"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,13 +13,13 @@ type Helper struct {
 	web.Helper
 }
 
-func (h Helper) Register(router *gin.RouterGroup) {
+func (h Helper) Register(cc *grpc.ClientConn, router *gin.RouterGroup) {
 	r := router.Group(BaseURL)
 
 	ms := []web.IHelper{
 		Logger{},
 	}
 	for _, m := range ms {
-		m.Register(r)
+		m.Register(cc, r)
 	}
 }
