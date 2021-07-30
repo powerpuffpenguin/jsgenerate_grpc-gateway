@@ -185,6 +185,14 @@ func (s server) Refresh(ctx context.Context, req *grpc_session.RefreshRequest) (
 		}
 		return
 	}
+	if req.Cookie {
+		s.SetHTTPCookie(ctx, &http.Cookie{
+			Name:     s.CookieName(),
+			Value:    access,
+			Path:     `/`,
+			HttpOnly: true,
+		})
+	}
 	if ce := logger.Logger.Check(zap.InfoLevel, TAG); ce != nil {
 		ce.Write(
 			zap.String(`access`, req.Access),

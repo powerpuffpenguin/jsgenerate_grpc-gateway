@@ -73,6 +73,8 @@ message RefreshRequest{
     string access = 1;
     // old refresh token
     string refresh = 2;
+    // cookie mode only for debug
+    bool cookie = 3;
 }
 message RefreshResponse{
     // new access token
