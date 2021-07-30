@@ -11,7 +11,6 @@ import (
 	signal_session "{{pkg}}/signal/session"
 	"{{pkg}}/utils"
 	"strconv"
-	"sync"
 	"time"
 
 	"go.uber.org/zap"
@@ -23,8 +22,6 @@ func LastModified() (modtime time.Time) {
 	modtime, _ = modtimeHelper.LastModified()
 	return
 }
-
-var once sync.Once
 
 func Init() {
 	e := doInit()
