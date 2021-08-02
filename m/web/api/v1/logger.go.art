@@ -8,6 +8,7 @@ import (
 	"{{pkg}}/m/web"
 	
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/powerpuffpenguin/sessionid"
@@ -44,7 +45,7 @@ func (h Logger) checkRoot(c *gin.Context) (code int, msg string) {
 func (h Logger) attach(c *gin.Context) {
 	ws, e := h.Upgrade(c.Writer, c.Request, nil)
 	if e != nil {
-		h.NegotiateError(c, http.StatusBadRequest, e)
+		h.Error(c, http.StatusBadRequest, codes.InvalidArgument, e.Error())
 		return
 	}
 	defer ws.Close()
