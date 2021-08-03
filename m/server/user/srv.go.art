@@ -22,15 +22,24 @@ type server struct {
 
 func (s server) Find(ctx context.Context, req *grpc_user.FindRequest) (resp *grpc_user.FindResponse, e error) {
 	TAG := `user Find`
-	resp, e = db.Find(ctx, req)
-	if e != nil {
-		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
-			ce.Write(
-				zap.Error(e),
-			)
+	s.SetHTTPCacheMaxAge(ctx, 60)
+	e = s.ServeMessage(ctx, db.LastModified(), func(nobody bool) error {
+		if nobody {
+			resp = &emptyFindResponse
+		} else {
+			tmp, err := db.Find(ctx, req)
+			if err != nil {
+				if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
+					ce.Write(
+						zap.Error(err),
+					)
+				}
+				return err
+			}
+			resp = tmp
 		}
-		return
-	}
+		return nil
+	})
 	return
 }
 func (s server) Add(ctx context.Context, req *grpc_user.AddRequest) (resp *grpc_user.AddResponse, e error) {
