@@ -20,6 +20,8 @@ type server struct {
 	helper.Helper
 }
 
+var emptyFindResponse grpc_user.FindResponse
+
 func (s server) Find(ctx context.Context, req *grpc_user.FindRequest) (resp *grpc_user.FindResponse, e error) {
 	TAG := `user Find`
 	s.SetHTTPCacheMaxAge(ctx, 60)
@@ -29,17 +31,19 @@ func (s server) Find(ctx context.Context, req *grpc_user.FindRequest) (resp *grp
 		} else {
 			tmp, err := db.Find(ctx, req)
 			if err != nil {
-				if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
-					ce.Write(
-						zap.Error(err),
-					)
-				}
 				return err
 			}
 			resp = tmp
 		}
 		return nil
 	})
+	if e != nil {
+		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
+			ce.Write(
+				zap.Error(e),
+			)
+		}
+	}
 	return
 }
 func (s server) Add(ctx context.Context, req *grpc_user.AddRequest) (resp *grpc_user.AddResponse, e error) {
@@ -84,8 +88,10 @@ func (s server) Add(ctx context.Context, req *grpc_user.AddRequest) (resp *grpc_
 	return
 }
 
-var changedPasswordResponse = grpc_user.PasswordResponse{Changed: true}
-var notChangedPasswordResponse grpc_user.PasswordResponse
+var (
+	changedPasswordResponse    = grpc_user.PasswordResponse{Changed: true}
+	notChangedPasswordResponse grpc_user.PasswordResponse
+)
 
 func (s server) Password(ctx context.Context, req *grpc_user.PasswordRequest) (resp *grpc_user.PasswordResponse, e error) {
 	TAG := `user Password`
@@ -133,8 +139,10 @@ func (s server) Password(ctx context.Context, req *grpc_user.PasswordRequest) (r
 	return
 }
 
-var changedChangeResponse = grpc_user.ChangeResponse{Changed: true}
-var notChangedChangeResponse grpc_user.ChangeResponse
+var (
+	changedChangeResponse    = grpc_user.ChangeResponse{Changed: true}
+	notChangedChangeResponse grpc_user.ChangeResponse
+)
 
 func (s server) Change(ctx context.Context, req *grpc_user.ChangeRequest) (resp *grpc_user.ChangeResponse, e error) {
 	TAG := `user Change`
