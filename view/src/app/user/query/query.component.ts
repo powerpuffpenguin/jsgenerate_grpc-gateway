@@ -84,10 +84,12 @@ export class QueryComponent implements OnInit, OnDestroy {
       } catch (e) {
         console.warn(`parseInt count error : `, e)
       }
+      this.request.last = undefined
       request.cloneTo(this.request)
       request.cloneTo(this.request_)
       this.source = response.data
     }, (e) => {
+      this.request.last = Date.now()
       this.toasterService.pop('error', undefined, e)
     })
   }

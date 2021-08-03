@@ -30,6 +30,7 @@ export class Request {
     offset = 0
     name: string | undefined = ''
     nameFuzzy = true
+    last: number | undefined
     cloneTo(other: Request) {
         if (this == other) {
             return
@@ -39,6 +40,7 @@ export class Request {
         other.offset = this.offset
         other.name = this.name
         other.nameFuzzy = this.nameFuzzy
+        other.last = this.last
     }
     constructor(params?: Params) {
         if (params) {
@@ -71,12 +73,16 @@ export class Request {
         }
     }
     toQuery(): Params {
-        return {
+        const params: any = {
             limit: this.limit,
             offset: this.offset,
             name: this.name,
             nameFuzzy: this.nameFuzzy,
         }
+        if (this.last) {
+            params[`_last`] = this.last
+        }
+        return params
     }
 }
 
