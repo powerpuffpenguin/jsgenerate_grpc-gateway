@@ -179,7 +179,7 @@ func (s server) Change(ctx context.Context, req *grpc_user.ChangeRequest) (resp 
 	return
 }
 func (s server) Remove(ctx context.Context, req *grpc_user.RemoveRequest) (resp *grpc_user.RemoveResponse, e error) {
-	TAG := `user Password`
+	TAG := `user Remove`
 	_, userdata, e := s.Userdata(ctx)
 	if e != nil {
 		return
