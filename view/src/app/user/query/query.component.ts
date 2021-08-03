@@ -58,7 +58,6 @@ export class QueryComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy() {
     this.closed_.close()
-    console.log(`ngOnDestroy`)
   }
   private _query(request: Request) {
     if (this.disabled) {
