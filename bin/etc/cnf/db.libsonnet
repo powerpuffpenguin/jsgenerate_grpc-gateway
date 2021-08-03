@@ -18,7 +18,7 @@ local driver = def.Driver;
         // special cache
         Special: [
             {
-                Name: 'user',
+                Name: 'data_of_user',
                 Record: 100,
             },
         ],
