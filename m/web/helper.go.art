@@ -86,3 +86,36 @@ func (h Helper) WSWriteClose(ws *websocket.Conn, code uint16, msg string) (e err
 	e = ws.WriteMessage(websocket.CloseMessage, b)
 	return
 }
+func (h Helper) WSWriteError(ws *websocket.Conn, e error) {
+	ws.WriteJSON(gin.H{
+		`code`: status.Code(e),
+		`emsg`: e.Error(),
+	})
+}
+func (h Helper) WSForward(ws *websocket.Conn, f Forward) {
+	go h.wsRequest(ws, f)
+	for {
+		e := f.Response()
+		if e != nil {
+			h.WSWriteError(ws, e)
+			break
+		}
+	}
+	ws.Close()
+}
+func (h Helper) wsRequest(ws *websocket.Conn, f Forward) {
+	for {
+		t, p, e := ws.ReadMessage()
+		if e != nil {
+			h.WSWriteError(ws, e)
+			break
+		}
+		e = f.Request(t, p)
+		if e != nil {
+			h.WSWriteError(ws, e)
+			break
+		}
+	}
+	ws.Close()
+	f.CloseSend()
+}
