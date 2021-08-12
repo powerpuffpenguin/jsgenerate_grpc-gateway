@@ -6,7 +6,7 @@ import { Listener } from './listener';
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { WebLinksAddon } from 'xterm-addon-web-links';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { Closed } from 'src/app/core/utils/closed';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
@@ -85,15 +85,10 @@ export class AttachComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.listener) {
       return
     }
-    const query = new HttpParams({
-      fromObject: {
-        access_token: `${this.token_}`,
-      }
-    })
     this.listener = new Listener(
       this.httpClient,
-      this,
       this.sessionService,
+      this,
     )
   }
   onClickDetach() {
@@ -107,13 +102,13 @@ export class AttachComponent implements OnInit, OnDestroy, AfterViewInit {
   onClickClear() {
     this.xterm_?.clear()
   }
-  writeln(text: string) {
-    if (this.checked) {
+  writeln(text: string, log?: boolean) {
+    if (log || this.checked) {
       this.xterm_?.writeln(text)
     }
   }
-  write(text: string) {
-    if (this.checked) {
+  write(text: string, log?: boolean) {
+    if (log || this.checked) {
       this.xterm_?.write(text)
     }
   }

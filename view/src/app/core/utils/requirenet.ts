@@ -39,4 +39,5 @@ export class RequireState extends BasicState<any>  {
                 }
             }, onReady, onError)
     }
+
 }

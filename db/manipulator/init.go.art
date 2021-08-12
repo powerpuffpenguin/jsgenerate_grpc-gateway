@@ -3,6 +3,7 @@ package manipulator
 import (
 	"context"
 
+	"fmt"
 	"{{pkg}}/configure"
 	"{{pkg}}/db/data"
 	"{{pkg}}/logger"

@@ -42,6 +42,7 @@ func newServer(l net.Listener, swagger, debug bool, cnf *configure.ServerOption)
 
 	gateway := newGateway()
 	mux := gin.Default()
+	mux.RedirectTrailingSlash = false
 	register.HTTP(clientConn, mux, gateway, swagger)
 
 	s = &Server{
