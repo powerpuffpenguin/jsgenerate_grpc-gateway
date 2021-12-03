@@ -12,6 +12,13 @@ function write(){
     echo  >> "$filename"
     echo  "var (" >> "$filename"
     echo  "	Version = \`$Version\`" >> "$filename"
+    local commit=`git rev-parse HEAD`
+	if [ "$commit" == '' ];then
+		commit="[unknow commit]"
+	fi
+    echo "	Commit = \`$commit\`" >> "$filename"
+	date=`date +'%Y-%m-%d %H:%M:%S'`
+    echo "	Date = \`$date\`" >> "$filename"
     echo  ")" >> "$filename"
 }
 if [[ -f "$filename" ]];then
