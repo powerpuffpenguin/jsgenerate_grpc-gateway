@@ -47,7 +47,7 @@
         <target>本系統使用 jsgenerate_grpc-gateway  框架構建。jsgenerate_grpc-gateway 是由 飛天小企鵝 研發的一個開源 gprc 框架。更多關於 jsgenerate_grpc-gateway 的信息，請查看源代碼說明。</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/content/about/about.component.html</context>
-          <context context-type="linenumber">8,12</context>
+          <context context-type="linenumber">7,12</context>
         </context-group>
       </trans-unit>
       <trans-unit id="76b8339d5b6a70b6871600727ac3a9510e59d26f" datatype="html">

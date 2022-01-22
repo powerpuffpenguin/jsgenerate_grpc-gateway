@@ -43,11 +43,11 @@
         </context-group>
       </trans-unit>
       <trans-unit id="127120f0c7eebcf2a386ff863ca8a77c14fd14eb" datatype="html">
-        <source> This is a system built by the jsgenerate_grpc-gateway framework. jsgenerate_grpc-gateway is a open source gprc framework developed by 飞天小企鹅 . For more information about jsgenerate_grpc-gateway, please see source description. </source>
+        <source> This is a system built by the jsgenerate_grpc-gateway framework. jsgenerate_grpc-gateway is a open source gprc framework developed by 飛天小企鵝 . For more information about jsgenerate_grpc-gateway, please see source description. </source>
         <target>本系统使用 jsgenerate_grpc-gateway  框架构建。jsgenerate_grpc-gateway 是由 飞天小企鹅 研发的一个开源 gprc 框架。更多关于 jsgenerate_grpc-gateway 的信息，请查看源代码说明。</target>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/content/about/about.component.html</context>
-          <context context-type="linenumber">8,12</context>
+          <context context-type="linenumber">7,12</context>
         </context-group>
       </trans-unit>
       <trans-unit id="76b8339d5b6a70b6871600727ac3a9510e59d26f" datatype="html">
