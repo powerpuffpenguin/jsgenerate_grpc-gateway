@@ -8,7 +8,7 @@ import (
 	"{{pkg}}/configure"
 	"{{pkg}}/db/manipulator"
 	"{{pkg}}/logger"
-	"{{pkg}}/sessions"
+	"{{pkg}}/sessionid"
 	"{{pkg}}/utils"
 
 	"github.com/spf13/cobra"
@@ -48,7 +48,7 @@ func init() {
 
 			// init db
 			manipulator.Init(&cnf.DB)
-			sessions.Init(&cnf.Session)
+			sessionid.Init(&cnf.Session)
 
 			daemon.Run(&cnf.HTTP, debug)
 		},

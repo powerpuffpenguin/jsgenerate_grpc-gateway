@@ -6,7 +6,7 @@ import (
 
 	"{{pkg}}/logger"
 	"{{pkg}}/m/helper"
-	"{{pkg}}/sessions"
+	"{{pkg}}/sessionid"
 	"{{pkg}}/utils"
 
 	"{{pkg}}/m/server/user/internal/db"
@@ -49,7 +49,7 @@ func (s server) Find(ctx context.Context, req *grpc_user.FindRequest) (resp *grp
 }
 func (s server) Add(ctx context.Context, req *grpc_user.AddRequest) (resp *grpc_user.AddResponse, e error) {
 	TAG := `user Add`
-	_, userdata, e := s.Userdata(ctx)
+	_, session, e := s.Session(ctx)
 	if e != nil {
 		return
 	}
@@ -65,7 +65,7 @@ func (s server) Add(ctx context.Context, req *grpc_user.AddRequest) (resp *grpc_
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`who`, userdata.Who()),
+				zap.String(`who`, session.Who()),
 				zap.String(`name`, req.Name),
 				zap.String(`nickname`, req.Nickname),
 				zap.Int32s(`authorization`, req.Authorization),
@@ -79,7 +79,7 @@ func (s server) Add(ctx context.Context, req *grpc_user.AddRequest) (resp *grpc_
 	s.SetHTTPCode(ctx, http.StatusCreated)
 	if ce := logger.Logger.Check(zap.InfoLevel, TAG); ce != nil {
 		ce.Write(
-			zap.String(`who`, userdata.Who()),
+			zap.String(`who`, session.Who()),
 			zap.Int64(`id`, id),
 			zap.String(`name`, req.Name),
 			zap.String(`nickname`, req.Nickname),
@@ -96,7 +96,7 @@ var (
 
 func (s server) Password(ctx context.Context, req *grpc_user.PasswordRequest) (resp *grpc_user.PasswordResponse, e error) {
 	TAG := `user Password`
-	_, userdata, e := s.Userdata(ctx)
+	_, session, e := s.Session(ctx)
 	if e != nil {
 		return
 	}
@@ -109,7 +109,7 @@ func (s server) Password(ctx context.Context, req *grpc_user.PasswordRequest) (r
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`who`, userdata.Who()),
+				zap.String(`who`, session.Who()),
 				zap.Int64(`id`, req.Id),
 			)
 		}
@@ -119,17 +119,17 @@ func (s server) Password(ctx context.Context, req *grpc_user.PasswordRequest) (r
 		resp = &changedPasswordResponse
 		if ce := logger.Logger.Check(zap.InfoLevel, TAG); ce != nil {
 			ce.Write(
-				zap.String(`who`, userdata.Who()),
+				zap.String(`who`, session.Who()),
 				zap.Int64(`id`, req.Id),
 			)
 		}
 
-		ed := sessions.DestroyID(req.Id)
-		if ed != nil {
+		err := sessionid.DefaultManager().DeleteID(context.Background(), req.Id)
+		if err != nil {
 			if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 				ce.Write(
-					zap.Error(ed),
-					zap.String(`who`, userdata.Who()),
+					zap.Error(err),
+					zap.String(`who`, session.Who()),
 					zap.Int64(`id`, req.Id),
 				)
 			}
@@ -147,7 +147,7 @@ var (
 
 func (s server) Change(ctx context.Context, req *grpc_user.ChangeRequest) (resp *grpc_user.ChangeResponse, e error) {
 	TAG := `user Change`
-	_, userdata, e := s.Userdata(ctx)
+	_, session, e := s.Session(ctx)
 	if e != nil {
 		return
 	}
@@ -156,7 +156,7 @@ func (s server) Change(ctx context.Context, req *grpc_user.ChangeRequest) (resp 
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`who`, userdata.Who()),
+				zap.String(`who`, session.Who()),
 				zap.Int64(`id`, req.Id),
 				zap.String(`nickname`, req.Nickname),
 				zap.Int32s(`authorization`, req.Authorization),
@@ -168,11 +168,22 @@ func (s server) Change(ctx context.Context, req *grpc_user.ChangeRequest) (resp 
 		resp = &changedChangeResponse
 		if ce := logger.Logger.Check(zap.InfoLevel, TAG); ce != nil {
 			ce.Write(
-				zap.String(`who`, userdata.Who()),
+				zap.String(`who`, session.Who()),
 				zap.Int64(`id`, req.Id),
 				zap.String(`nickname`, req.Nickname),
 				zap.Int32s(`authorization`, req.Authorization),
 			)
+		}
+
+		err := sessionid.DefaultManager().DeleteID(context.Background(), req.Id)
+		if err != nil {
+			if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
+				ce.Write(
+					zap.Error(err),
+					zap.String(`who`, session.Who()),
+					zap.Int64(`id`, req.Id),
+				)
+			}
 		}
 	} else {
 		resp = &notChangedChangeResponse
@@ -180,8 +191,12 @@ func (s server) Change(ctx context.Context, req *grpc_user.ChangeRequest) (resp 
 	return
 }
 func (s server) Remove(ctx context.Context, req *grpc_user.RemoveRequest) (resp *grpc_user.RemoveResponse, e error) {
+	if len(req.Id) != 0 {
+		resp = &grpc_user.RemoveResponse{}
+		return
+	}
 	TAG := `user Remove`
-	_, userdata, e := s.Userdata(ctx)
+	_, session, e := s.Session(ctx)
 	if e != nil {
 		return
 	}
@@ -190,11 +205,26 @@ func (s server) Remove(ctx context.Context, req *grpc_user.RemoveRequest) (resp 
 		if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
 			ce.Write(
 				zap.Error(e),
-				zap.String(`who`, userdata.Who()),
+				zap.String(`who`, session.Who()),
 				zap.Int64s(`id`, req.Id),
 			)
 		}
 		return
+	}
+	if rowsAffected != 0 {
+		ctx := context.Background()
+		for _, id := range req.Id {
+			err := sessionid.DefaultManager().DeleteID(ctx, id)
+			if err != nil {
+				if ce := logger.Logger.Check(zap.WarnLevel, TAG); ce != nil {
+					ce.Write(
+						zap.Error(err),
+						zap.String(`who`, session.Who()),
+						zap.Int64(`id`, id),
+					)
+				}
+			}
+		}
 	}
 	resp = &grpc_user.RemoveResponse{
 		RowsAffected: rowsAffected,
@@ -202,7 +232,7 @@ func (s server) Remove(ctx context.Context, req *grpc_user.RemoveRequest) (resp 
 	if ce := logger.Logger.Check(zap.InfoLevel, TAG); ce != nil {
 		ce.Write(
 			zap.Error(e),
-			zap.String(`who`, userdata.Who()),
+			zap.String(`who`, session.Who()),
 			zap.Int64s(`id`, req.Id),
 			zap.Int64(`rowsAffected`, rowsAffected),
 		)

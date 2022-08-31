@@ -1,6 +1,8 @@
 package web
 
 import (
+	"net/http"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -50,4 +52,26 @@ func Marshal(m proto.Message) ([]byte, error) {
 	return protojson.MarshalOptions{
 		EmitUnpopulated: true,
 	}.Marshal(m)
+}
+
+type MessageReader struct {
+	Data proto.Message
+}
+
+// Render writes data with custom ContentType.
+func (m MessageReader) Render(w http.ResponseWriter) error {
+	jsonBytes, err := Marshal(m.Data)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(jsonBytes)
+	return err
+}
+
+// WriteContentType writes custom ContentType.
+func (m MessageReader) WriteContentType(w http.ResponseWriter) {
+	header := w.Header()
+	if val := header["Content-Type"]; len(val) == 0 {
+		header["Content-Type"] = []string{"application/json; charset=utf-8"}
+	}
 }
