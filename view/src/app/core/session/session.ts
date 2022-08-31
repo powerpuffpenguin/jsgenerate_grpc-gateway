@@ -9,6 +9,7 @@ import { md5String } from '../utils/md5';
 import { aesDecrypt, aesEncrypt } from '../utils/aes';
 import { Codes, NetError } from '../core/restful';
 const Key = 'session'
+const KeyLast = 'last.session'
 const Platform = 'web'
 export interface Userdata {
     readonly id: string
@@ -169,8 +170,8 @@ export class Manager {
     get observable(): Observable<Session | undefined> {
         return this.subject_
     }
-    private _load(): Session | undefined {
-        const str = getItem(Key)
+    private _load(key: string): Session | undefined {
+        const str = getItem(key)
         if (typeof str !== "string") {
             return
         }
@@ -197,16 +198,25 @@ export class Manager {
         return
     }
     load() {
-        this.subject_.next(this._load())
+        this.subject_.next(this._load(Key))
     }
-    private _save(session: Session) {
+    private _save(session: Session, remember: boolean, last = true) {
+        if (!remember && !last) {
+            return
+        }
         try {
             const data = JSON.stringify({
                 userdata: session.userdata,
                 token: session.token,
             })
             console.log(`save token`, data)
-            setItem(Key, aesEncrypt(data))
+            const val = aesEncrypt(data)
+            if (remember) {
+                setItem(Key, val)
+            }
+            if (last) {
+                setItem(KeyLast, val)
+            }
         } catch (e) {
             console.log('save token error', e)
         }
@@ -265,9 +275,7 @@ export class Manager {
                     token.deadline,
                 ),
                 response.data)
-            if (remember) {
-                this._save(session)
-            }
+            this._save(session, remember)
             this.subject_.next(session)
         } finally {
             if (completer) {
@@ -283,9 +291,7 @@ export class Manager {
     signout(httpClient: HttpClient) {
         const session = this.subject_.value
         if (session) {
-            if (this.remember_) {
-                removeItem(Key)
-            }
+            this.clear(session)
             this.subject_.next(undefined)
             ServerAPI.v1.sessions.child('access').delete(httpClient, {
                 headers: {
@@ -310,8 +316,31 @@ export class Manager {
         } else if (session != current) { // already refresh
             return current
         }
-        if (err && err.grpc != Codes.Unauthenticated) {
-            throw err
+        let token = session.token
+        const last = this._load(KeyLast)
+        if (last && last.access != session.access && last.userdata.id && last.userdata.id == session.userdata.id) {
+            const lt = last.token
+            if (!lt.deleted) {
+                if (!lt.expired) {
+                    this.subject_.next(last)
+                    this._save(last, this.remember_, false)
+                    return last
+                }
+                if (lt.canRefresh) {
+                    token = lt
+                }
+            }
+        }
+
+        if (err) {
+            if (err.grpc != Codes.Unauthenticated) {
+                throw err
+            } else if (err.message == 'token not exists') {
+                throw err
+            }
+        }
+        if (!token.canRefresh) {
+            throw "can't refresh token"
         }
 
         // refresh
@@ -319,8 +348,8 @@ export class Manager {
         this.refresh_ = completer
         ServerAPI.v1.sessions.child('refresh').post<RefreshResponse>(httpClient,
             {
-                access: session.token.access,
-                refresh: session.token.refresh,
+                access: token.access,
+                refresh: token.refresh,
             },
             {
                 headers: {
@@ -337,9 +366,7 @@ export class Manager {
                 ),
                 session.userdata,
             )
-            if (this.remember_) {
-                this._save(s)
-            }
+            this._save(s, this.remember_)
             this.subject_.next(s)
             completer.resolve(s)
         }, (e) => {
@@ -353,10 +380,14 @@ export class Manager {
         if (session == this.subject_.value) {
             this.subject_.next(undefined)
             if (this.remember_) {
-                const current = this._load()
+                const current = this._load(Key)
                 if (current && current.access == session.access) {
                     removeItem(Key)
                 }
+            }
+            const current = this._load(KeyLast)
+            if (current && current.access == session.access) {
+                removeItem(KeyLast)
             }
         }
     }

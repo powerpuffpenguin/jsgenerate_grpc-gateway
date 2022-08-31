@@ -29,21 +29,14 @@ export class HeaderInterceptor implements HttpInterceptor {
         headers = headers.set('Authorization', `Bearer ${session.access}`)
       }
     }
-    let first = true
     return next.handle(req.clone({
       headers: headers,
     })).pipe(
       catchError((err, caught) => {
-        if (first) {
-          // only refresh once
-          first = false
-          if (session && err instanceof HttpErrorResponse) {
-            const e = resolveError(err)
-            if (e.grpc == Codes.Unauthenticated) {
-              return this._refreshRetry(req, next, session, e)
-            } else if (e.grpc == Codes.PermissionDenied && e.message == 'token not exists') {
-              Manager.instance.clear(session)
-            }
+        if (session && err instanceof HttpErrorResponse) {
+          const e = resolveError(err)
+          if (e.grpc == Codes.Unauthenticated) {
+            return this._refreshRetry(req, next, session, e)
           }
         }
         throw err
