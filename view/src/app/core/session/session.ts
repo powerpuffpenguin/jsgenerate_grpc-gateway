@@ -16,8 +16,54 @@ export interface Userdata {
     readonly nickname?: string
     readonly authorization?: Array<number>
 }
+export class Token {
+    public readonly accessDeadline: number
+    public readonly refreshDeadline: number
+    public readonly deadline: number
+    constructor(
+        public readonly access: string,
+        public readonly refresh: string,
+        accessDeadline: string | number,
+        refreshDeadline: string | number,
+        deadline: string | number,
+    ) {
+        if (typeof accessDeadline === "number") {
+            this.accessDeadline = accessDeadline
+
+        } else {
+            this.accessDeadline = parseInt(accessDeadline)
+        }
+        if (typeof refreshDeadline === "number") {
+            this.refreshDeadline = refreshDeadline
+        } else {
+            this.refreshDeadline = parseInt(refreshDeadline)
+        }
+        if (typeof deadline === "number") {
+            this.deadline = deadline
+        } else if (typeof deadline === "string") {
+            this.deadline = parseInt(deadline)
+        } else {
+            this.deadline = 0
+        }
+    }
+    get expired(): boolean {
+        return getUnix() > this.accessDeadline
+    }
+    get deleted(): boolean {
+        return getUnix() > this.refreshDeadline
+    }
+    get canRefresh(): boolean {
+        if (this.deadline == 0) {
+            return true
+        }
+        return getUnix() < this.deadline
+    }
+}
 export class Session {
-    constructor(public access: string, public refresh: string, public userdata: Userdata) {
+    constructor(public readonly token: Token, public readonly userdata: Userdata) {
+    }
+    get access(): string {
+        return this.token.access
     }
     get who(): string {
         if (!this.userdata || !this.userdata.id) {
@@ -99,21 +145,14 @@ export class Session {
 }
 interface Store {
     userdata: Userdata
-    access: string
-    refresh: string
-    deadline: number
+    token: Token
 }
 interface SigninResponse {
-    access: string
-    refresh: string
-    id: string
-    name: string
-    nickname: string
-    authorization: Array<number>
+    token: Token
+    data: Userdata
 }
 interface RefreshResponse {
-    access: string
-    refresh: string
+    token: Token
 }
 export class Manager {
     static instance_ = new Manager()
@@ -130,7 +169,7 @@ export class Manager {
     get observable(): Observable<Session | undefined> {
         return this.subject_
     }
-    private _load(httpClient?: HttpClient): Session | undefined {
+    private _load(): Session | undefined {
         const str = getItem(Key)
         if (typeof str !== "string") {
             return
@@ -138,19 +177,18 @@ export class Manager {
         try {
             const obj: Store = JSON.parse(aesDecrypt(str))
             if (obj !== null && typeof obj === "object") {
-                const access = obj.access
-                const refresh = obj.refresh
+                const t = obj.token
+                const token = new Token(
+                    t.access, t.refresh,
+                    t.accessDeadline, t.refreshDeadline,
+                    t.deadline,
+                )
                 const userdata = obj.userdata
-                if (typeof access === "string" && access.length > 0
-                    && typeof refresh === "string" && refresh.length > 0
+                if (!token.deleted
                     && userdata !== null && typeof userdata === "object" && userdata.id) {
                     this.remember_ = true
-                    const session = new Session(access, refresh, userdata)
-                    const deadline = obj.deadline
-                    if (httpClient && typeof deadline == "number" && deadline < Date.now()) {
-                        this._refreshUserdata(httpClient, session)
-                    }
-                    return new Session(access, refresh, userdata)
+                    const session = new Session(token, userdata)
+                    return session
                 }
             }
         } catch (e) {
@@ -158,41 +196,14 @@ export class Manager {
         }
         return
     }
-    private _refreshUserdata(httpClient: HttpClient, session: Session) {
-        ServerAPI.v1.sessions.child('access').get<Userdata>(httpClient,
-            {
-                params: {
-                    at: Date.now().toString(),
-                },
-                headers: {
-                    Interceptor: 'none',
-                    Authorization: `Bearer ${session.access}`,
-                }
-            },
-        ).toPromise().then((_) => {
-            if (session == this.session) {
-                this._save(session)
-            }
-        }, (e) => {
-            if (e instanceof NetError) {
-                if (e.grpc == Codes.Unauthenticated) {
-                    this.refresh(httpClient, session, e).catch((e) => { })
-                } else if (e.grpc == Codes.PermissionDenied && e.message == 'token not exists') {
-                    this.clear(session)
-                }
-            }
-        })
-    }
-    load(httpClient: HttpClient) {
-        this.subject_.next(this._load(httpClient))
+    load() {
+        this.subject_.next(this._load())
     }
     private _save(session: Session) {
         try {
             const data = JSON.stringify({
                 userdata: session.userdata,
-                access: session.access,
-                refresh: session.refresh,
-                deadline: Date.now() + 1000 * 60 * 5,//5 minute
+                token: session.token,
             })
             console.log(`save token`, data)
             setItem(Key, aesEncrypt(data))
@@ -246,12 +257,14 @@ export class Manager {
                     },
                 },
             ).toPromise()
-            session = new Session(response.access, response.refresh, {
-                id: response.id,
-                name: response.name,
-                nickname: response.nickname,
-                authorization: response.authorization,
-            })
+            const token = response.token
+            session = new Session(
+                new Token(
+                    token.access, token.refresh,
+                    token.accessDeadline, token.refreshDeadline,
+                    token.deadline,
+                ),
+                response.data)
             if (remember) {
                 this._save(session)
             }
@@ -306,8 +319,8 @@ export class Manager {
         this.refresh_ = completer
         ServerAPI.v1.sessions.child('refresh').post<RefreshResponse>(httpClient,
             {
-                access: session.access,
-                refresh: session.refresh,
+                access: session.token.access,
+                refresh: session.token.refresh,
             },
             {
                 headers: {
@@ -315,7 +328,15 @@ export class Manager {
                 }
             },
         ).toPromise().then((resp) => {
-            const s = new Session(resp.access, resp.refresh, session.userdata)
+            const token = resp.token
+            const s = new Session(
+                new Token(
+                    token.access, token.refresh,
+                    token.accessDeadline, token.refreshDeadline,
+                    token.deadline,
+                ),
+                session.userdata,
+            )
             if (this.remember_) {
                 this._save(s)
             }
