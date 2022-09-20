@@ -56,10 +56,8 @@ func newServer(l net.Listener, swagger, debug bool, cnf *configure.ServerOption)
 	}
 	if cnf.MaxConcurrentStreams < 1 {
 		cnf.MaxConcurrentStreams = math.MaxUint32
-		s.http2Server.MaxConcurrentStreams = math.MaxUint32
-	} else {
-		s.http2Server.MaxConcurrentStreams = cnf.MaxConcurrentStreams
 	}
+	s.http2Server.MaxConcurrentStreams = cnf.MaxConcurrentStreams
 	return
 }
 
