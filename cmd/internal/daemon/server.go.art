@@ -46,16 +46,16 @@ func newServer(l net.Listener, swagger, debug bool, cnf *configure.ServerOption)
 	mux := gin.Default()
 	mux.RedirectTrailingSlash = false
 	register.HTTP(clientConn, mux, gateway, swagger)
-
+	
+	if cnf.MaxConcurrentStreams < 1 {
+		cnf.MaxConcurrentStreams = math.MaxUint32
+	}
 	s = &Server{
 		pipe:  pipe,
 		gpipe: newGRPC(cnf, gateway, clientConn, debug),
 		tcp:   l,
 		gtcp:  newGRPC(cnf, nil, nil, debug),
 		mux:   mux,
-	}
-	if cnf.MaxConcurrentStreams < 1 {
-		cnf.MaxConcurrentStreams = math.MaxUint32
 	}
 	s.http2Server.MaxConcurrentStreams = cnf.MaxConcurrentStreams
 	return
