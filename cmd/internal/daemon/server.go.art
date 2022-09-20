@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"context"
+	"math"
 	"net"
 	"net/http"
 	"strings"
@@ -17,6 +18,7 @@ import (
 )
 
 type Server struct {
+	http2Server http2.Server
 	pipe  *PipeListener
 	gpipe *grpc.Server
 
@@ -52,6 +54,12 @@ func newServer(l net.Listener, swagger, debug bool, cnf *configure.ServerOption)
 		gtcp:  newGRPC(cnf, nil, nil, debug),
 		mux:   mux,
 	}
+	if cnf.MaxConcurrentStreams < 1 {
+		cnf.MaxConcurrentStreams = math.MaxUint32
+		s.http2Server.MaxConcurrentStreams = math.MaxUint32
+	} else {
+		s.http2Server.MaxConcurrentStreams = cnf.MaxConcurrentStreams
+	}
 	return
 }
 
@@ -68,12 +76,11 @@ func (s *Server) Serve() (e error) {
 
 	// h2c
 	var httpServer http.Server
-	var http2Server http2.Server
-	e = http2.ConfigureServer(&httpServer, &http2Server)
+	e = http2.ConfigureServer(&httpServer, &s.http2Server)
 	if e != nil {
 		return
 	}
-	httpServer.Handler = h2c.NewHandler(s, &http2Server)
+	httpServer.Handler = h2c.NewHandler(s, &s.http2Server)
 	// h2c Serve
 	e = httpServer.Serve(s.tcp)
 	return
@@ -81,6 +88,14 @@ func (s *Server) Serve() (e error) {
 func (s *Server) ServeTLS(certFile, keyFile string) (e error) {
 	go s.gpipe.Serve(s.pipe)
 
-	e = http.ServeTLS(s.tcp, s, certFile, keyFile)
+	// h2
+	var httpServer http.Server
+	e = http2.ConfigureServer(&httpServer, &s.http2Server)
+	if e != nil {
+		return
+	}
+	httpServer.Handler = s
+	// h2 Serve
+	e = httpServer.ServeTLS(s.tcp, certFile, keyFile)
 	return
 }
